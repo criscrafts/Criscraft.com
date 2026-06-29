@@ -21,8 +21,8 @@ export default function Navbar({ cartCount, currentView, onNavigate }: NavbarPro
           onClick={() => onNavigate('home')}
           className="flex items-center gap-2 cursor-pointer group text-slate-900 hover:opacity-90"
         >
-          <div className="bg-[#0099FF] text-white p-2 rounded-full shadow-lg transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">
-            <Gift size={20} />
+          <div className="bg-white p-1 rounded-full shadow-lg transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110 flex items-center justify-center w-9 h-9 overflow-hidden border border-slate-100">
+            <img src="/faavico.png" alt="CrisCrafts Logo" className="w-full h-full object-contain" />
           </div>
           <span className="font-display text-xl font-bold tracking-tight text-slate-900">
             Cris<span className="text-[#0099FF]">crafts</span>
