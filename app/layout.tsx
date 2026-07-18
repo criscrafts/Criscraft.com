@@ -1,10 +1,5 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Poppins } from "next/font/google";
-import { CartProvider } from "@/context/CartContext";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
-import { FloatingWhatsAppButton } from "@/components/FloatingWhatsAppButton";
-import { getGlobalSettings } from "@/lib/sanity";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -39,25 +34,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = await getGlobalSettings();
-
   return (
     <html
       lang="en"
       className={`${cormorant.variable} ${poppins.variable} scroll-smooth`}
     >
-      <body className="bg-warm-ivory text-deep-slate font-sans min-h-screen flex flex-col antialiased">
-        <CartProvider>
-          <Navbar settings={settings} />
-          <main className="flex-grow flex flex-col">{children}</main>
-          <Footer settings={settings} />
-          <FloatingWhatsAppButton whatsappNumber={settings?.whatsappNumber} />
-        </CartProvider>
+      <body className="bg-warm-ivory text-deep-slate font-sans min-h-screen antialiased flex flex-col">
+        {children}
       </body>
     </html>
   );
