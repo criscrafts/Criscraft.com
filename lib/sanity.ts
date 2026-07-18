@@ -239,7 +239,7 @@ export async function getProducts(): Promise<Product[]> {
         title,
         "slug": slug.current
       },
-      collections[]->slug.current,
+      "collections": collections[]->slug.current,
       availability,
       featured,
       tags,
@@ -280,7 +280,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
         title,
         "slug": slug.current
       },
-      collections[]->slug.current,
+      "collections": collections[]->slug.current,
       availability,
       featured,
       tags,
