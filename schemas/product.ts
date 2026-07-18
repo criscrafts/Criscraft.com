@@ -65,6 +65,13 @@ export default {
       initialValue: true,
     },
     {
+      name: "featured",
+      title: "Featured Product",
+      type: "boolean",
+      description: "Toggle to display this product in the featured collection on the home page.",
+      initialValue: false,
+    },
+    {
       name: "tags",
       title: "Product Tags",
       type: "array",

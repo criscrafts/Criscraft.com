@@ -5,11 +5,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, Menu, X, Gift } from "lucide-react";
+import { ShoppingBag, Menu, X, Gift, Sparkles } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { CartDrawer } from "./CartDrawer";
+import { GlobalSettings } from "@/types";
 
-export const Navbar: React.FC = () => {
+export const Navbar: React.FC<{ settings: GlobalSettings | null }> = ({ settings }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
@@ -47,25 +48,45 @@ export const Navbar: React.FC = () => {
       <header
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
           isScrolled
-            ? "py-4 glassmorphism shadow-luxury-sm"
-            : "py-6 bg-transparent border-b border-transparent"
+            ? "glassmorphism shadow-luxury-sm"
+            : "bg-transparent border-b border-transparent"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
+        {settings?.announcementText && (
+          <div className="bg-soft-gold text-warm-ivory text-center py-2 px-4 text-[10px] font-semibold tracking-wider uppercase flex items-center justify-center gap-1.5 shadow-sm">
+            <Sparkles className="w-3 h-3 animate-pulse" />
+            <span>{settings.announcementText}</span>
+          </div>
+        )}
+        <div className={`max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between transition-all duration-500 ${
+          isScrolled ? "py-3.5" : "py-5"
+        }`}>
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
             <div className="relative w-8 h-8 rounded-full border border-soft-gold/20 overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-300">
               <Image
-                src="/favicon.png"
-                alt="CrisCrafts Logo"
+                src={settings?.logo || "/favicon.png"}
+                alt={`${settings?.siteName || "CrisCrafts"} Logo`}
                 fill
                 className="object-cover"
                 sizes="32px"
               />
             </div>
-            <span className="font-serif text-2xl font-semibold tracking-wide text-deep-slate">
-              Cris<span className="text-soft-gold font-normal">crafts</span>
-            </span>
+            {settings?.siteName ? (
+              <span className="font-serif text-2xl font-semibold tracking-wide text-deep-slate">
+                {settings.siteName.toLowerCase().startsWith("criscrafts") ? (
+                  <>
+                    Cris<span className="text-soft-gold font-normal">crafts</span>
+                  </>
+                ) : (
+                  settings.siteName
+                )}
+              </span>
+            ) : (
+              <span className="font-serif text-2xl font-semibold tracking-wide text-deep-slate">
+                Cris<span className="text-soft-gold font-normal">crafts</span>
+              </span>
+            )}
           </Link>
 
           {/* Desktop Navigation */}

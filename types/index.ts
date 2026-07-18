@@ -40,6 +40,7 @@ export interface Product {
   hasGlitterOption?: boolean; // customized craft additions
   hasSnowPaperOption?: boolean;
   hasGiftNoteOption?: boolean;
+  featured?: boolean;
 }
 
 export interface CartCustomizations {
@@ -103,4 +104,26 @@ export interface OrderResponse {
   success: boolean;
   orderId?: string;
   error?: string;
+}
+
+export interface GlobalSettings {
+  _id?: string;
+  siteName: string;
+  logo?: string;
+  announcementText?: string;
+  whatsappNumber: string;
+  contactEmail?: string;
+  socialInstagram?: string;
+  socialFacebook?: string;
+}
+
+export interface HeroData {
+  _id?: string;
+  title: string;
+  subtitle: string;
+  mainImage?: string;
+  primaryButtonText?: string;
+  primaryButtonLink?: string;
+  secondaryButtonText?: string;
+  secondaryButtonLink?: string;
 }

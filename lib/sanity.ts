@@ -1,5 +1,5 @@
 import { createClient } from "next-sanity";
-import { Product, Category, Testimonial, FAQItem } from "@/types";
+import { Product, Category, Testimonial, FAQItem, GlobalSettings, HeroData } from "@/types";
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "placeholder-id";
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
@@ -241,6 +241,7 @@ export async function getProducts(): Promise<Product[]> {
       },
       collections[]->slug.current,
       availability,
+      featured,
       tags,
       rating,
       reviewsCount,
@@ -249,7 +250,12 @@ export async function getProducts(): Promise<Product[]> {
       hasGiftNoteOption,
       variants
     }`;
-    return await sanityClient.fetch(query);
+    const data = await sanityClient.fetch(query);
+    if (!data || data.length === 0) {
+      console.warn("Empty products returned from Sanity. Using fallback mock products.");
+      return MOCK_PRODUCTS;
+    }
+    return data;
   } catch (error) {
     console.warn("Failed to fetch from Sanity CMS, using mock data fallbacks.", error);
     return MOCK_PRODUCTS;
@@ -276,6 +282,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       },
       collections[]->slug.current,
       availability,
+      featured,
       tags,
       rating,
       reviewsCount,
@@ -291,7 +298,12 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
         text
       }
     }`;
-    return await sanityClient.fetch(query, { slug });
+    const data = await sanityClient.fetch(query, { slug });
+    if (!data) {
+      console.warn(`Product slug not found in Sanity: ${slug}. Using mock fallback.`);
+      return MOCK_PRODUCTS.find((p) => p.slug === slug) || null;
+    }
+    return data;
   } catch (error) {
     console.warn(`Failed to fetch product for slug: ${slug}, using fallback data.`, error);
     const product = MOCK_PRODUCTS.find((p) => p.slug === slug);
@@ -311,7 +323,12 @@ export async function getCategories(): Promise<Category[]> {
       description,
       "image": image.asset->url
     }`;
-    return await sanityClient.fetch(query);
+    const data = await sanityClient.fetch(query);
+    if (!data || data.length === 0) {
+      console.warn("Empty categories returned from Sanity. Using fallback mock categories.");
+      return MOCK_CATEGORIES;
+    }
+    return data;
   } catch (error) {
     console.warn("Failed to fetch categories from Sanity, using mock data.", error);
     return MOCK_CATEGORIES;
@@ -331,7 +348,12 @@ export async function getTestimonials(): Promise<Testimonial[]> {
       rating,
       "avatar": avatar.asset->url
     }`;
-    return await sanityClient.fetch(query);
+    const data = await sanityClient.fetch(query);
+    if (!data || data.length === 0) {
+      console.warn("Empty testimonials returned from Sanity. Using fallback mock testimonials.");
+      return MOCK_TESTIMONIALS;
+    }
+    return data;
   } catch (error) {
     console.warn("Failed to fetch testimonials from Sanity, using mock data.", error);
     return MOCK_TESTIMONIALS;
@@ -349,9 +371,56 @@ export async function getFAQs(): Promise<FAQItem[]> {
       answer,
       category
     }`;
-    return await sanityClient.fetch(query);
+    const data = await sanityClient.fetch(query);
+    if (!data || data.length === 0) {
+      console.warn("Empty FAQs returned from Sanity. Using fallback mock FAQs.");
+      return MOCK_FAQS;
+    }
+    return data;
   } catch (error) {
     console.warn("Failed to fetch FAQs from Sanity, using mock data.", error);
     return MOCK_FAQS;
+  }
+}
+
+export async function getGlobalSettings(): Promise<GlobalSettings | null> {
+  if (!isSanityConfigured()) {
+    return null;
+  }
+  try {
+    const query = `*[_type == "settings"][0] {
+      siteName,
+      "logo": logo.asset->url,
+      announcementText,
+      whatsappNumber,
+      contactEmail,
+      socialInstagram,
+      socialFacebook
+    }`;
+    return await sanityClient.fetch(query);
+  } catch (error) {
+    console.warn("Failed to fetch global settings from Sanity.", error);
+    return null;
+  }
+}
+
+export async function getHeroData(): Promise<HeroData | null> {
+  if (!isSanityConfigured()) {
+    return null;
+  }
+  try {
+    const query = `*[_type == "homepageHero"][0] {
+      title,
+      subtitle,
+      "mainImage": mainImage.asset->url,
+      primaryButtonText,
+      primaryButtonLink,
+      secondaryButtonText,
+      secondaryButtonLink
+    }`;
+    return await sanityClient.fetch(query);
+  } catch (error) {
+    console.warn("Failed to fetch homepage hero data from Sanity.", error);
+    return null;
   }
 }

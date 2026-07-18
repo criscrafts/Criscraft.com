@@ -3,13 +3,13 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export const FloatingWhatsAppButton: React.FC = () => {
+export const FloatingWhatsAppButton: React.FC<{ whatsappNumber?: string }> = ({ whatsappNumber }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleClick = () => {
-    const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "+9779800000000";
+    const numberToUse = whatsappNumber || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "+9779800000000";
     const message = encodeURIComponent("Hello CrisCrafts, I am browsing your boutique and would love to ask about custom gifts! ✨");
-    window.open(`https://wa.me/${whatsappNumber.replace(/[+]/g, "")}?text=${message}`, "_blank");
+    window.open(`https://wa.me/${numberToUse.replace(/[+]/g, "")}?text=${message}`, "_blank");
   };
 
   return (

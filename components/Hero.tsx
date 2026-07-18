@@ -6,10 +6,10 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, Heart, Award } from "lucide-react";
 import { Button } from "./ui/button";
-import { Product } from "@/types";
+import { Product, HeroData } from "@/types";
 import { SwipeableCards } from "./SwipeableCards";
 
-export const Hero: React.FC<{ products: Product[] }> = ({ products }) => {
+export const Hero: React.FC<{ products: Product[]; heroData: HeroData | null }> = ({ products, heroData }) => {
   return (
     <section className="relative min-h-[92vh] flex items-center justify-center pt-24 overflow-hidden bg-mesh-gradient bg-artisan-grid">
       {/* Animated Organic Background Shapes */}
@@ -74,9 +74,15 @@ export const Hero: React.FC<{ products: Product[] }> = ({ products }) => {
               transition={{ duration: 0.8, delay: 0.1 }}
               className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal leading-[1.1] text-deep-slate tracking-tight"
             >
-              Crafting stories, <br />
-              one <span className="font-serif italic text-soft-gold">handmade</span> detail <br className="hidden sm:inline" />
-              at a time.
+              {heroData?.title ? (
+                <span dangerouslySetInnerHTML={{ __html: heroData.title }} />
+              ) : (
+                <>
+                  Crafting stories, <br />
+                  one <span className="font-serif italic text-soft-gold">handmade</span> detail <br className="hidden sm:inline" />
+                  at a time.
+                </>
+              )}
             </motion.h1>
 
             <motion.p
@@ -85,7 +91,7 @@ export const Hero: React.FC<{ products: Product[] }> = ({ products }) => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="font-sans text-sm sm:text-base leading-relaxed text-charcoal/80 max-w-lg mt-2"
             >
-              ✨ Heart-led, hand-finished, and uniquely yours. Step into a world of premium artisan gift-giving where every stitch, ribbon, and fold is woven with absolute love.
+              {heroData?.subtitle || "✨ Heart-led, hand-finished, and uniquely yours. Step into a world of premium artisan gift-giving where every stitch, ribbon, and fold is woven with absolute love."}
             </motion.p>
           </div>
 
@@ -96,14 +102,14 @@ export const Hero: React.FC<{ products: Product[] }> = ({ products }) => {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="flex flex-wrap items-center gap-4 w-full sm:w-auto"
           >
-            <Link href="/shop" passHref className="w-full sm:w-auto">
+            <Link href={heroData?.primaryButtonLink || "/shop"} passHref className="w-full sm:w-auto">
               <Button variant="primary" size="lg" className="w-full sm:w-auto" rightIcon={<ArrowRight className="w-4 h-4" />}>
-                Explore Collection
+                {heroData?.primaryButtonText || "Explore Collection"}
               </Button>
             </Link>
-            <Link href="/#our-story" passHref className="w-full sm:w-auto">
+            <Link href={heroData?.secondaryButtonLink || "/#our-story"} passHref className="w-full sm:w-auto">
               <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                Our Story
+                {heroData?.secondaryButtonText || "Our Story"}
               </Button>
             </Link>
           </motion.div>
@@ -137,8 +143,21 @@ export const Hero: React.FC<{ products: Product[] }> = ({ products }) => {
         </div>
 
         {/* Right Column: Hero Visual Showcase */}
-        <div className="lg:col-span-6 flex items-center justify-center relative mt-8 lg:mt-0">
-          <SwipeableCards products={products} />
+        <div className="lg:col-span-6 flex items-center justify-center relative mt-8 lg:mt-0 w-full">
+          {heroData?.mainImage ? (
+            <div className="relative aspect-[4/5] w-[90%] sm:w-[80%] rounded-[32px] overflow-hidden shadow-luxury border border-soft-gold/15">
+              <Image
+                src={heroData.mainImage}
+                alt={heroData.title || "Showcase Image"}
+                fill
+                className="object-cover"
+                sizes="(max-w-768px) 100vw, 40vw"
+                priority
+              />
+            </div>
+          ) : (
+            <SwipeableCards products={products} />
+          )}
 
           {/* Floating Glassmorphic Labels */}
           <motion.div

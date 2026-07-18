@@ -4,6 +4,7 @@ import { CartProvider } from "@/context/CartContext";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { FloatingWhatsAppButton } from "@/components/FloatingWhatsAppButton";
+import { getGlobalSettings } from "@/lib/sanity";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -38,11 +39,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getGlobalSettings();
+
   return (
     <html
       lang="en"
@@ -50,10 +53,10 @@ export default function RootLayout({
     >
       <body className="bg-warm-ivory text-deep-slate font-sans min-h-screen flex flex-col antialiased">
         <CartProvider>
-          <Navbar />
+          <Navbar settings={settings} />
           <main className="flex-grow flex flex-col">{children}</main>
-          <Footer />
-          <FloatingWhatsAppButton />
+          <Footer settings={settings} />
+          <FloatingWhatsAppButton whatsappNumber={settings?.whatsappNumber} />
         </CartProvider>
       </body>
     </html>

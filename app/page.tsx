@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Star, ShieldCheck } from "lucide-react";
-import { getProducts, getCategories, getFAQs, getTestimonials } from "@/lib/sanity";
+import { getProducts, getCategories, getFAQs, getTestimonials, getHeroData } from "@/lib/sanity";
 import { Hero } from "@/components/Hero";
 import { ProductCard } from "@/components/ProductCard";
 import { Testimonials } from "@/components/Testimonials";
@@ -13,20 +13,23 @@ export const revalidate = 3600; // Revalidate page cache every hour
 
 export default async function HomePage() {
   // Fetch data concurrently on the server
-  const [products, categories, faqs, testimonials] = await Promise.all([
+  const [products, categories, faqs, testimonials, heroData] = await Promise.all([
     getProducts(),
     getCategories(),
     getFAQs(),
     getTestimonials(),
+    getHeroData(),
   ]);
 
   // Display only bestsellers/featured on home
-  const featuredProducts = products.slice(0, 3);
+  const featuredProducts = products.some((p) => p.featured)
+    ? products.filter((p) => p.featured)
+    : products.slice(0, 3);
 
   return (
     <div className="flex flex-col w-full">
       {/* 1. Immersive Hero */}
-      <Hero products={products} />
+      <Hero heroData={heroData} products={products} />
 
       {/* 2. Brand Value Proposition Ribbon */}
       <section className="bg-soft-cream py-8 border-y border-soft-gold/15">

@@ -1,9 +1,10 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Gift, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
+import { GlobalSettings } from "@/types";
 
-export const Footer: React.FC = () => {
+export const Footer: React.FC<{ settings: GlobalSettings | null }> = ({ settings }) => {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -14,16 +15,28 @@ export const Footer: React.FC = () => {
           <Link href="/" className="flex items-center gap-2.5">
             <div className="relative w-8 h-8 rounded-full border border-soft-gold/20 overflow-hidden shadow-sm">
               <Image
-                src="/favicon.png"
-                alt="CrisCrafts Logo"
+                src={settings?.logo || "/favicon.png"}
+                alt={`${settings?.siteName || "CrisCrafts"} Logo`}
                 fill
                 className="object-cover"
                 sizes="32px"
               />
             </div>
-            <span className="font-serif text-2xl font-semibold tracking-wide text-deep-slate">
-              Cris<span className="text-soft-gold font-normal">crafts</span>
-            </span>
+            {settings?.siteName ? (
+              <span className="font-serif text-2xl font-semibold tracking-wide text-deep-slate">
+                {settings.siteName.toLowerCase().startsWith("criscrafts") ? (
+                  <>
+                    Cris<span className="text-soft-gold font-normal">crafts</span>
+                  </>
+                ) : (
+                  settings.siteName
+                )}
+              </span>
+            ) : (
+              <span className="font-serif text-2xl font-semibold tracking-wide text-deep-slate">
+                Cris<span className="text-soft-gold font-normal">crafts</span>
+              </span>
+            )}
           </Link>
           <p className="text-sm leading-relaxed text-dark-gray/80 max-w-sm">
             Crafting stories, one handmade detail at a time.
@@ -32,7 +45,7 @@ export const Footer: React.FC = () => {
           </p>
           <div className="flex items-center gap-4 mt-2">
             <a
-              href="https://instagram.com"
+              href={settings?.socialInstagram || "https://instagram.com"}
               target="_blank"
               rel="noreferrer"
               className="p-2 rounded-full border border-soft-gold/20 hover:border-soft-gold text-charcoal hover:text-soft-gold hover:-translate-y-1 transition-all duration-300"
@@ -41,7 +54,7 @@ export const Footer: React.FC = () => {
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
             </a>
             <a
-              href="https://facebook.com"
+              href={settings?.socialFacebook || "https://facebook.com"}
               target="_blank"
               rel="noreferrer"
               className="p-2 rounded-full border border-soft-gold/20 hover:border-soft-gold text-charcoal hover:text-soft-gold hover:-translate-y-1 transition-all duration-300"
@@ -98,20 +111,33 @@ export const Footer: React.FC = () => {
               </Link>
             </li>
             <li>
-              <a href="mailto:hello@criscrafts.com" className="text-dark-gray hover:text-soft-gold transition-colors duration-300">
-                hello@criscrafts.com
+              <a href={`mailto:${settings?.contactEmail || "hello@criscrafts.com"}`} className="text-dark-gray hover:text-soft-gold transition-colors duration-300">
+                {settings?.contactEmail || "hello@criscrafts.com"}
               </a>
             </li>
-            <li>
-              <span className="text-dark-gray">WhatsApp: Support Desk</span>
-            </li>
+            {settings?.whatsappNumber ? (
+              <li>
+                <a
+                  href={`https://wa.me/${settings.whatsappNumber.replace(/[+]/g, "")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-dark-gray hover:text-soft-gold transition-colors duration-300"
+                >
+                  WhatsApp: Support Desk
+                </a>
+              </li>
+            ) : (
+              <li>
+                <span className="text-dark-gray">WhatsApp: Support Desk</span>
+              </li>
+            )}
           </ul>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 pt-8 border-t border-soft-gold/10 flex flex-col md:flex-row items-center justify-between gap-4">
         <p className="text-xs text-dark-gray/60">
-          © {currentYear} CrisCrafts. Made with love & craftsmanship. All rights reserved.
+          © {currentYear} {settings?.siteName || "CrisCrafts"}. Made with love & craftsmanship. All rights reserved.
         </p>
         <p className="text-xs text-dark-gray/60 flex items-center gap-1">
           Made with <Heart className="w-3 h-3 text-muted-rose fill-muted-rose" /> for memorable gifting.
