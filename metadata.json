@@ -1,6 +1,0 @@
-{
-  "name": "Criscrafts Handcrafted Gift Shop",
-  "description": "A high-end, responsive online boutique for premium handcrafted ribbon/fuzzy-wire bouquets, chocolate bouquets, and custom keyrings with deep-linked WhatsApp checkout.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

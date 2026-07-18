@@ -1,0 +1,49 @@
+import { OrderPayload } from "@/types";
+
+/**
+ * Calculates shipping costs based on the shipping location/method selected.
+ */
+export function calculateShippingCost(method: string): number {
+  switch (method) {
+    case "inside-valley":
+      return 150; // Inside Kathmandu Valley Rs. 150
+    case "outside-valley":
+      return 250; // Outside Kathmandu Valley Rs. 250
+    default:
+      return 150; // Default flat rate
+  }
+}
+
+/**
+ * Validates checkout form data input parameters.
+ */
+export function validateCheckoutForm(data: any): { isValid: boolean; errors: Record<string, string> } {
+  const errors: Record<string, string> = {};
+
+  if (!data.customerName || data.customerName.trim().length < 3) {
+    errors.customerName = "Name must be at least 3 characters long.";
+  }
+
+  // Simple check for valid 10-digit or standard international phone formats
+  const phoneRegex = /^[+]?[0-9]{9,15}$/;
+  if (!data.phone || !phoneRegex.test(data.phone.replace(/[\s-]/g, ""))) {
+    errors.phone = "Please enter a valid phone number (at least 9 digits).";
+  }
+
+  if (!data.address || data.address.trim().length < 8) {
+    errors.address = "Please enter a detailed shipping address (at least 8 characters).";
+  }
+
+  if (data.paymentMethod !== "cod" && data.paymentMethod !== "qr") {
+    errors.paymentMethod = "Please choose a valid payment option.";
+  }
+
+  if (!data.shippingMethod || (data.shippingMethod !== "inside-valley" && data.shippingMethod !== "outside-valley")) {
+    errors.shippingMethod = "Please select a valid shipping area.";
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
+}
