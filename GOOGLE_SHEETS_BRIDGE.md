@@ -79,6 +79,13 @@ var ENABLE_PDF_INVOICES = true;
  * Fail-safe spreadsheet accessor helper
  */
 function getSpreadsheet() {
+  try {
+    var activeSs = SpreadsheetApp.getActiveSpreadsheet();
+    if (activeSs) return activeSs;
+  } catch (e) {
+    Logger.log("getActiveSpreadsheet failed: " + e.toString());
+  }
+
   if (typeof SPREADSHEET_ID === "string" && SPREADSHEET_ID.trim() !== "" && SPREADSHEET_ID !== "YOUR_SPREADSHEET_ID_HERE") {
     try {
       return SpreadsheetApp.openById(SPREADSHEET_ID.trim());
@@ -86,12 +93,7 @@ function getSpreadsheet() {
       Logger.log("openById failed: " + err.toString());
     }
   }
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    if (ss) return ss;
-  } catch (e) {
-    Logger.log("getActiveSpreadsheet failed: " + e.toString());
-  }
+
   throw new Error("Unable to access Google Spreadsheet. Please set SPREADSHEET_ID at line 20 of Code.gs to your Google Sheet ID.");
 }
 
