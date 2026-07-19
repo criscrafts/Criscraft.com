@@ -72,38 +72,13 @@ var ENABLE_PDF_INVOICES = true;
 // ============================================================================
 
 /**
- * Tri-tier fail-safe spreadsheet accessor helper
+ * Container-bound spreadsheet accessor helper.
+ * Automatically binds to whichever Google Sheet this script is attached to.
  */
 function getSpreadsheet() {
-  // Priority 1: Active Spreadsheet (Container-bound UI & simple triggers)
-  try {
-    var activeSs = SpreadsheetApp.getActiveSpreadsheet();
-    if (activeSs) return activeSs;
-  } catch (e) {
-    Logger.log("getActiveSpreadsheet failed: " + e.toString());
-  }
-
-  // Priority 2: Configured SPREADSHEET_ID (Web App Execution)
-  if (typeof SPREADSHEET_ID === "string" && SPREADSHEET_ID.trim() !== "" && SPREADSHEET_ID !== "YOUR_SPREADSHEET_ID_HERE") {
-    try {
-      return SpreadsheetApp.openById(SPREADSHEET_ID.trim());
-    } catch (err) {
-      Logger.log("openById failed: " + err.toString());
-    }
-  }
-
-  // Priority 3: Drive File Lookup Fallback
-  try {
-    var files = DriveApp.getFilesByName("CrisCrafts Orders");
-    if (files.hasNext()) {
-      var file = files.next();
-      return SpreadsheetApp.openById(file.getId());
-    }
-  } catch (driveErr) {
-    Logger.log("Drive search failed: " + driveErr.toString());
-  }
-
-  throw new Error("Unable to access Google Spreadsheet. Please verify your script is inside Google Sheets.");
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (ss) return ss;
+  throw new Error("Unable to access Google Spreadsheet. Please ensure this script is created inside your Google Sheet via Extensions > Apps Script.");
 }
 
 // Custom Menu Trigger on Sheet Open
