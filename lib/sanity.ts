@@ -227,7 +227,7 @@ export async function getProducts(): Promise<Product[]> {
     return MOCK_PRODUCTS;
   }
   try {
-    const query = `*[_type == "product" && (availability == true || !defined(availability))] {
+    const query = `*[_type == "product" && !(_id in path("drafts.**")) && (availability == true || !defined(availability))] {
       _id,
       title,
       "slug": slug.current,
@@ -255,7 +255,12 @@ export async function getProducts(): Promise<Product[]> {
       console.warn("Empty products returned from Sanity. Using fallback mock products.");
       return MOCK_PRODUCTS;
     }
-    return data;
+    // Deduplicate by slug to ensure draft and published versions never duplicate
+    const uniqueProducts = Array.from(
+      new Map(data.map((item: any) => [item.slug || item._id, item])).values()
+    ) as Product[];
+
+    return uniqueProducts;
   } catch (error) {
     console.warn("Failed to fetch from Sanity CMS, using mock data fallbacks.", error);
     return MOCK_PRODUCTS;
@@ -268,7 +273,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     return product || null;
   }
   try {
-    const query = `*[_type == "product" && slug.current == $slug][0] {
+    const query = `*[_type == "product" && !(_id in path("drafts.**")) && slug.current == $slug][0] {
       _id,
       title,
       "slug": slug.current,
@@ -316,7 +321,7 @@ export async function getCategories(): Promise<Category[]> {
     return MOCK_CATEGORIES;
   }
   try {
-    const query = `*[_type == "category"] {
+    const query = `*[_type == "category" && !(_id in path("drafts.**"))] {
       _id,
       title,
       "slug": slug.current,
@@ -340,7 +345,7 @@ export async function getTestimonials(): Promise<Testimonial[]> {
     return MOCK_TESTIMONIALS;
   }
   try {
-    const query = `*[_type == "testimonial"] | order(_createdAt desc)[0..5] {
+    const query = `*[_type == "testimonial" && !(_id in path("drafts.**"))] | order(_createdAt desc)[0..5] {
       _id,
       author,
       role,
@@ -365,7 +370,7 @@ export async function getFAQs(): Promise<FAQItem[]> {
     return MOCK_FAQS;
   }
   try {
-    const query = `*[_type == "faq"] {
+    const query = `*[_type == "faq" && !(_id in path("drafts.**"))] {
       _id,
       question,
       answer,
@@ -388,7 +393,7 @@ export async function getGlobalSettings(): Promise<GlobalSettings | null> {
     return null;
   }
   try {
-    const query = `*[_type == "settings"][0] {
+    const query = `*[_type == "settings" && !(_id in path("drafts.**"))][0] {
       siteName,
       "logo": logo.asset->url,
       announcementText,
@@ -409,7 +414,7 @@ export async function getHeroData(): Promise<HeroData | null> {
     return null;
   }
   try {
-    const query = `*[_type == "homepageHero"][0] {
+    const query = `*[_type == "homepageHero" && !(_id in path("drafts.**"))][0] {
       title,
       subtitle,
       "mainImage": mainImage.asset->url,
