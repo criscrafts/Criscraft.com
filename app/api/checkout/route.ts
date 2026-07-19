@@ -108,6 +108,7 @@ export async function POST(request: Request) {
             customerName,
             phone,
             address,
+            shippingMethod,
             productSummary,
             subtotal,
             shippingCost,
