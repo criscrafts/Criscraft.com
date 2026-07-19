@@ -171,7 +171,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="w-full font-sans min-h-screen bg-warm-ivory bg-artisan-grid pt-24 sm:pt-28 lg:pt-32 pb-24 text-left">
+    <div className="w-full font-sans min-h-screen bg-warm-ivory bg-artisan-grid pt-20 sm:pt-22 lg:pt-24 pb-16 text-left">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         {/* Back link */}
         <Link
@@ -356,16 +356,23 @@ export default function CheckoutPage() {
                       </p>
                       
                       {/* customizations details */}
-                      <span className="text-[10px] text-soft-gold/90 truncate max-w-[200px]">
-                        {[
-                          item.customizations.flowerColor,
-                          item.customizations.ribbonColor,
-                          item.customizations.addGlitter ? "Glitter" : "",
-                          item.customizations.addSnowPaper ? "SnowPaper" : "",
-                          item.customizations.customizedText ? `"${item.customizations.customizedText}"` : "",
-                        ]
-                          .filter(Boolean)
-                          .join(", ")}
+                      <span className="text-[10px] text-soft-gold/90 truncate max-w-[220px]">
+                        {(() => {
+                          const parts: string[] = [];
+                          if (item.customizations?.selectedOptions) {
+                            Object.values(item.customizations.selectedOptions).forEach((v) => parts.push(v));
+                          } else {
+                            if (item.customizations?.flowerColor) parts.push(item.customizations.flowerColor);
+                            if (item.customizations?.ribbonColor) parts.push(item.customizations.ribbonColor);
+                          }
+                          if (item.customizations?.selectedAddons) {
+                            item.customizations.selectedAddons.forEach((a) => parts.push(a.replace("addon-", "")));
+                          }
+                          if (item.customizations?.customizedText) {
+                            parts.push(`Note: "${item.customizations.customizedText}"`);
+                          }
+                          return parts.filter(Boolean).join(" • ");
+                        })()}
                       </span>
                     </div>
 

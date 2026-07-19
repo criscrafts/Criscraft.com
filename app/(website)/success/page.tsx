@@ -100,7 +100,7 @@ export default function SuccessPage() {
   }
 
   return (
-    <div className="w-full font-sans min-h-screen bg-warm-ivory bg-artisan-grid pt-28 pb-24 text-left">
+    <div className="w-full font-sans min-h-screen bg-warm-ivory bg-artisan-grid pt-20 sm:pt-22 lg:pt-24 pb-16 text-left">
       {/* Background Visual Blobs */}
       <div className="absolute top-[20%] right-[-10%] w-[35vw] h-[35vw] rounded-full bg-pastel-peach/20 blur-[80px] pointer-events-none" />
       <div className="absolute bottom-[10%] left-[-10%] w-[30vw] h-[30vw] rounded-full bg-pastel-blue/20 blur-[80px] pointer-events-none" />

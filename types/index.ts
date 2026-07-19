@@ -1,12 +1,40 @@
-export interface ProductVariantOption {
+export interface ProductOptionValue {
   name: string;
+  value?: string;
   priceImpact?: number;
+  hexColor?: string;
+  swatchImage?: string;
+  previewImage?: string;
+  displayOrder?: number;
+  availability?: boolean;
 }
 
-export interface ProductVariant {
-  name: string; // e.g. "Flower Color", "Ribbon Color"
-  options: ProductVariantOption[];
+export interface ProductOptionGroup {
+  name: string; // e.g. "Bouquet Size", "Flower Color", "Wrapper Style"
+  type: "size" | "color" | "wrapper" | "radio" | "select";
   required?: boolean;
+  options: ProductOptionValue[];
+}
+
+export interface GalleryGroup {
+  title: string;
+  optionValue: string; // Value linking to size option, e.g. "5-roses" or "5 Roses"
+  images: string[];
+  defaultImage?: string;
+  displayOrder?: number;
+}
+
+export interface Addon {
+  _id: string;
+  name: string;
+  slug: string;
+  price: number;
+  description?: string;
+  icon?: string;
+  previewImage?: string;
+  category?: string;
+  availability?: boolean;
+  displayOrder?: number;
 }
 
 export interface Review {
@@ -25,27 +53,37 @@ export interface Product {
   price: number;
   discountPrice?: number;
   description: string;
-  images: string[]; // URLs or Sanity asset refs
+  images: string[];
   category: {
     title: string;
     slug: string;
   };
   collections?: string[];
   availability: boolean;
+  featured?: boolean;
   tags?: string[];
   rating?: number;
   reviewsCount?: number;
   reviews?: Review[];
-  variants?: ProductVariant[];
-  hasGlitterOption?: boolean; // customized craft additions
+  
+  // Customization & Gallery Architecture
+  galleryGroups?: GalleryGroup[];
+  optionGroups?: ProductOptionGroup[];
+  addons?: Addon[];
+  
+  // Backward Compatibility
+  variants?: any[];
+  hasGlitterOption?: boolean;
   hasSnowPaperOption?: boolean;
   hasGiftNoteOption?: boolean;
-  featured?: boolean;
+  deliveryInfo?: string;
 }
 
 export interface CartCustomizations {
-  ribbonColor?: string;
+  selectedOptions?: Record<string, string>;
+  selectedAddons?: string[];
   flowerColor?: string;
+  ribbonColor?: string;
   addGlitter?: boolean;
   addSnowPaper?: boolean;
   giftNote?: string;
@@ -53,11 +91,11 @@ export interface CartCustomizations {
 }
 
 export interface CartItem {
-  id: string; // Unique slug + serialization of customizations
+  id: string;
   product: Product;
   quantity: number;
   customizations: CartCustomizations;
-  unitPrice: number; // Base price + add-ons
+  unitPrice: number;
 }
 
 export interface Category {

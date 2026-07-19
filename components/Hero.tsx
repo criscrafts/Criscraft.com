@@ -11,7 +11,7 @@ import { SwipeableCards } from "./SwipeableCards";
 
 export const Hero: React.FC<{ products: Product[]; heroData: HeroData | null }> = ({ products, heroData }) => {
   return (
-    <section className="relative min-h-[92vh] flex items-center justify-center pt-24 overflow-hidden bg-mesh-gradient bg-artisan-grid">
+    <section className="relative min-h-0 lg:min-h-[80vh] flex items-center justify-center pt-20 sm:pt-22 lg:pt-24 pb-12 sm:pb-14 lg:pb-16 overflow-hidden bg-mesh-gradient bg-artisan-grid">
       {/* Animated Organic Background Shapes */}
       <motion.div
         animate={{

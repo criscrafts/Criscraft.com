@@ -19,7 +19,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
   const [isAdded, setIsAdded] = useState(false);
 
-  const hasVariants = product.variants && product.variants.length > 0;
+  const hasVariants =
+    (product.optionGroups && product.optionGroups.length > 0) ||
+    (product.variants && product.variants.length > 0);
   const imageUrl = urlFor(product.images?.[0]);
 
   const handleQuickAdd = (e: React.MouseEvent) => {

@@ -104,7 +104,7 @@ export const ShopClient: React.FC<ShopClientProps> = ({
   };
 
   return (
-    <div className="w-full font-sans min-h-screen bg-warm-ivory bg-artisan-grid pt-24 sm:pt-28 lg:pt-32 pb-16">
+    <div className="w-full font-sans min-h-screen bg-warm-ivory bg-artisan-grid pt-20 sm:pt-22 lg:pt-24 pb-16">
       {/* Background glow accent */}
       <div className="absolute top-[15%] left-[-5%] w-[25vw] h-[25vw] rounded-full bg-pastel-blue/10 blur-[80px] pointer-events-none" />
 

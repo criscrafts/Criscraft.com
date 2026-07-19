@@ -20,6 +20,14 @@ export const metadata: Metadata = {
   title: "CrisCrafts | Premium Luxury Artisan Gift Boutique",
   description:
     "Crafting stories, one handmade detail at a time. Explore our luxury collection of custom ribbon bouquets, crochet flowers, plushies, and custom surprise boxes made with love.",
+  keywords: [
+    "Ribbon Bouquet Nepal",
+    "Handmade Gifts Kathmandu",
+    "Custom Crochet Bouquet",
+    "Fuzzy Wire Flowers",
+    "Artisan Gift Shop",
+    "CrisCrafts",
+  ],
   icons: {
     icon: "/favicon.png",
   },
@@ -39,12 +47,33 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "OnlineStore",
+    name: "CrisCrafts Artisan Boutique",
+    url: "https://criscrafts.com",
+    description:
+      "Crafting stories, one handmade detail at a time. Premium custom ribbon bouquets, crochet plushies, and luxury gift hampers.",
+    priceRange: "Rs. 450 - Rs. 8500",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Kathmandu",
+      addressCountry: "NP",
+    },
+  };
+
   return (
     <html
       lang="en"
       className={`${cormorant.variable} ${poppins.variable} scroll-smooth`}
     >
-      <body className="bg-warm-ivory text-deep-slate font-sans min-h-screen antialiased flex flex-col">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
+      <body className="bg-warm-ivory text-deep-slate font-sans min-h-screen antialiased flex flex-col focus-visible:outline-none">
         {children}
       </body>
     </html>

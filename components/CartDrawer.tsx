@@ -109,29 +109,51 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                         
                         {/* Customization Badges summary */}
                         <div className="flex flex-wrap gap-1 mt-1.5">
-                          {item.customizations.flowerColor && (
-                            <span className="text-[10px] bg-pastel-peach/50 text-charcoal px-2 py-0.5 rounded-md border border-soft-gold/5">
-                              {item.customizations.flowerColor}
-                            </span>
+                          {item.customizations?.selectedOptions ? (
+                            Object.entries(item.customizations.selectedOptions).map(([gName, val]) => (
+                              <span key={gName} className="text-[10px] bg-pastel-peach/60 text-deep-slate px-2 py-0.5 rounded-md border border-soft-gold/10 font-medium">
+                                {val}
+                              </span>
+                            ))
+                          ) : (
+                            <>
+                              {item.customizations?.flowerColor && (
+                                <span className="text-[10px] bg-pastel-peach/50 text-charcoal px-2 py-0.5 rounded-md border border-soft-gold/5">
+                                  {item.customizations.flowerColor}
+                                </span>
+                              )}
+                              {item.customizations?.ribbonColor && (
+                                <span className="text-[10px] bg-pastel-blue/50 text-charcoal px-2 py-0.5 rounded-md border border-soft-gold/5">
+                                  Ribbon: {item.customizations.ribbonColor}
+                                </span>
+                              )}
+                            </>
                           )}
-                          {item.customizations.ribbonColor && (
-                            <span className="text-[10px] bg-pastel-blue/50 text-charcoal px-2 py-0.5 rounded-md border border-soft-gold/5">
-                              Ribbon: {item.customizations.ribbonColor}
-                            </span>
+
+                          {item.customizations?.selectedAddons && item.customizations.selectedAddons.length > 0 ? (
+                            item.customizations.selectedAddons.map((addon) => (
+                              <span key={addon} className="text-[10px] bg-soft-gold/10 text-soft-gold px-2 py-0.5 rounded-md border border-soft-gold/10 font-medium">
+                                + {addon.replace("addon-", "").replace("-", " ")}
+                              </span>
+                            ))
+                          ) : (
+                            <>
+                              {item.customizations?.addGlitter && (
+                                <span className="text-[10px] bg-soft-gold/10 text-soft-gold px-2 py-0.5 rounded-md border border-soft-gold/10">
+                                  + Glitter
+                                </span>
+                              )}
+                              {item.customizations?.addSnowPaper && (
+                                <span className="text-[10px] bg-muted-rose/10 text-muted-rose px-2 py-0.5 rounded-md border border-muted-rose/10">
+                                  + Snow Paper
+                                </span>
+                              )}
+                            </>
                           )}
-                          {item.customizations.addGlitter && (
-                            <span className="text-[10px] bg-soft-gold/10 text-soft-gold px-2 py-0.5 rounded-md border border-soft-gold/10">
-                              + Glitter
-                            </span>
-                          )}
-                          {item.customizations.addSnowPaper && (
-                            <span className="text-[10px] bg-muted-rose/10 text-muted-rose px-2 py-0.5 rounded-md border border-muted-rose/10">
-                              + Snow Paper
-                            </span>
-                          )}
-                          {item.customizations.customizedText && (
-                            <span className="text-[10px] bg-deep-slate/5 text-deep-slate px-2 py-0.5 rounded-md border border-deep-slate/10 max-w-[120px] truncate" title={item.customizations.customizedText}>
-                              Label: "{item.customizations.customizedText}"
+
+                          {item.customizations?.customizedText && (
+                            <span className="text-[10px] bg-deep-slate/5 text-deep-slate px-2 py-0.5 rounded-md border border-deep-slate/10 max-w-[140px] truncate" title={item.customizations.customizedText}>
+                              Note: "{item.customizations.customizedText}"
                             </span>
                           )}
                         </div>

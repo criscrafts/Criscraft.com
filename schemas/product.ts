@@ -1,55 +1,45 @@
 export default {
   name: "product",
-  title: "Product",
+  title: "Product Template",
   type: "document",
+  fieldsets: [
+    { name: "basic", title: "Basic Information" },
+    { name: "pricing", title: "Pricing & Stock" },
+    { name: "gallery", title: "Product Gallery & Gallery Groups" },
+    { name: "customization", title: "Customization & Add-ons Architecture" },
+    { name: "metadata", title: "SEO & Delivery Info" },
+  ],
   fields: [
+    // Basic Info
     {
       name: "title",
       title: "Product Title",
       type: "string",
+      description: "Master product template name (e.g. Ribbon Bouquet, Fuzzy Wire Daisy, Crochet Bunny)",
+      fieldset: "basic",
       validation: (Rule: any) => Rule.required(),
     },
     {
       name: "slug",
       title: "Slug",
       type: "slug",
-      options: {
-        source: "title",
-        maxLength: 96,
-      },
+      fieldset: "basic",
+      options: { source: "title", maxLength: 96 },
       validation: (Rule: any) => Rule.required(),
-    },
-    {
-      name: "price",
-      title: "Base Price (Rs.)",
-      type: "number",
-      validation: (Rule: any) => Rule.required().min(0),
-    },
-    {
-      name: "discountPrice",
-      title: "Discount Price (Rs.)",
-      type: "number",
-      description: "Optional sale price that overrides the base price.",
-      validation: (Rule: any) => Rule.min(0),
     },
     {
       name: "description",
       title: "Description",
       type: "text",
+      fieldset: "basic",
       validation: (Rule: any) => Rule.required(),
-    },
-    {
-      name: "images",
-      title: "Product Images",
-      type: "array",
-      of: [{ type: "image", options: { hotspot: true } }],
-      validation: (Rule: any) => Rule.required().min(1),
     },
     {
       name: "category",
       title: "Category",
       type: "reference",
       to: [{ type: "category" }],
+      fieldset: "basic",
       validation: (Rule: any) => Rule.required(),
     },
     {
@@ -57,33 +47,52 @@ export default {
       title: "Collections",
       type: "array",
       of: [{ type: "reference", to: [{ type: "collection" }] }],
-    },
-    {
-      name: "availability",
-      title: "In Stock & Available",
-      type: "boolean",
-      initialValue: true,
+      fieldset: "basic",
     },
     {
       name: "featured",
-      title: "Featured Product",
+      title: "Featured Showcase Product",
       type: "boolean",
-      description: "Toggle to display this product in the featured collection on the home page.",
+      fieldset: "basic",
       initialValue: false,
     },
     {
       name: "tags",
       title: "Product Tags",
       type: "array",
+      fieldset: "basic",
       of: [{ type: "string" }],
-      options: {
-        layout: "tags",
-      },
+      options: { layout: "tags" },
+    },
+
+    // Pricing & Stock
+    {
+      name: "price",
+      title: "Base Price (Rs.)",
+      type: "number",
+      fieldset: "pricing",
+      validation: (Rule: any) => Rule.required().min(0),
+    },
+    {
+      name: "discountPrice",
+      title: "Discount Price (Rs.)",
+      type: "number",
+      fieldset: "pricing",
+      description: "Optional sale price overriding base price.",
+      validation: (Rule: any) => Rule.min(0),
+    },
+    {
+      name: "availability",
+      title: "In Stock & Available",
+      type: "boolean",
+      fieldset: "pricing",
+      initialValue: true,
     },
     {
       name: "rating",
       title: "Average Rating",
       type: "number",
+      fieldset: "pricing",
       initialValue: 5.0,
       validation: (Rule: any) => Rule.min(1).max(5),
     },
@@ -91,58 +100,63 @@ export default {
       name: "reviewsCount",
       title: "Number of Reviews",
       type: "number",
+      fieldset: "pricing",
       initialValue: 0,
     },
+
+    // Product Gallery & Gallery Groups
     {
-      name: "hasGlitterOption",
-      title: "Enable Glitter Add-on Option",
-      type: "boolean",
-      description: "Adds a toggle to add glitter spray for Rs. 50.",
-      initialValue: false,
+      name: "images",
+      title: "Default Product Gallery (Fallback)",
+      type: "array",
+      fieldset: "gallery",
+      description: "Default photo set shown on page load before a specific size gallery is triggered.",
+      of: [{ type: "image", options: { hotspot: true } }],
+      validation: (Rule: any) => Rule.required().min(1),
     },
     {
-      name: "hasSnowPaperOption",
-      title: "Enable Snow Paper Wrapping Option",
-      type: "boolean",
-      description: "Adds a toggle to wrap with textured snow paper for Rs. 100.",
-      initialValue: false,
+      name: "galleryGroups",
+      title: "Gallery Groups (Size-Linked Photo Sets)",
+      type: "array",
+      fieldset: "gallery",
+      description: "Photo sets that automatically switch when the customer selects different sizes (e.g., Single Rose vs 5 Roses vs 20 Roses). Each contains 4-6 curated photos.",
+      of: [{ type: "galleryGroup" }],
     },
+
+    // Customization & Add-ons Architecture
+    {
+      name: "optionGroups",
+      title: "Customization Option Groups",
+      type: "array",
+      fieldset: "customization",
+      description: "Configurable options (Bouquet Size, Flower Color, Wrapper, Keyring Style, etc.).",
+      of: [{ type: "optionGroup" }],
+    },
+    {
+      name: "addons",
+      title: "Reusable Add-ons Available",
+      type: "array",
+      fieldset: "customization",
+      description: "Select reusable add-on items available for this product (Glitter, Snow Paper, Pearls, LED Lights, Mini Teddy, etc.).",
+      of: [{ type: "reference", to: [{ type: "addon" }] }],
+    },
+
+    // Legacy Toggles for backward compatibility
     {
       name: "hasGiftNoteOption",
-      title: "Enable Gift Note Message Option",
+      title: "Enable Gift Card Message Note Area",
       type: "boolean",
-      description: "Adds a text area for custom gift messages.",
+      fieldset: "customization",
       initialValue: true,
     },
+
+    // Metadata & SEO
     {
-      name: "variants",
-      title: "Custom Selection Options",
-      type: "array",
-      description: "Custom dropdown selections such as colors, styles, textures.",
-      of: [
-        {
-          type: "object",
-          name: "variant",
-          fields: [
-            { name: "name", title: "Option Group Name (e.g., Flower Color)", type: "string" },
-            { name: "required", title: "Required Selection", type: "boolean", initialValue: true },
-            {
-              name: "options",
-              title: "Available Options",
-              type: "array",
-              of: [
-                {
-                  type: "object",
-                  fields: [
-                    { name: "name", title: "Option Value Name (e.g., Blush Pink)", type: "string" },
-                    { name: "priceImpact", title: "Additional Price Cost (Rs.)", type: "number", initialValue: 0 },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
+      name: "deliveryInfo",
+      title: "Delivery Information Notes",
+      type: "string",
+      fieldset: "metadata",
+      initialValue: "Handcrafted to order. Ships nationwide in 3-5 business days.",
     },
   ],
 };

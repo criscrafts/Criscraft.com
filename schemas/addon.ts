@@ -1,0 +1,85 @@
+export default {
+  name: "addon",
+  title: "Reusable Add-on",
+  type: "document",
+  fields: [
+    {
+      name: "name",
+      title: "Add-on Name",
+      type: "string",
+      description: "e.g., Spray Sparkly Glitter Dust, Textured Snow Paper, LED Fairy Lights",
+      validation: (Rule: any) => Rule.required(),
+    },
+    {
+      name: "slug",
+      title: "Slug",
+      type: "slug",
+      options: { source: "name", maxLength: 96 },
+      validation: (Rule: any) => Rule.required(),
+    },
+    {
+      name: "price",
+      title: "Add-on Price (Rs.)",
+      type: "number",
+      validation: (Rule: any) => Rule.required().min(0),
+    },
+    {
+      name: "description",
+      title: "Description",
+      type: "text",
+      description: "Brief summary shown under the add-on toggle card.",
+    },
+    {
+      name: "icon",
+      title: "Icon Style",
+      type: "string",
+      options: {
+        list: [
+          { title: "✨ Sparkles / Glitter", value: "sparkles" },
+          { title: "❄️ Snow Paper / Wrap", value: "snow" },
+          { title: "💎 Pearls / Gems", value: "gem" },
+          { title: "💡 LED Fairy Lights", value: "lights" },
+          { title: "🧸 Mini Teddy Bear", value: "teddy" },
+          { title: "🎀 Luxury Ribbon / Bow", value: "ribbon" },
+          { title: "🌸 Dried Flowers", value: "flowers" },
+          { title: "📦 Premium Presentation Box", value: "box" },
+          { title: "💌 Gift Card Note", value: "gift" },
+        ],
+      },
+      initialValue: "sparkles",
+    },
+    {
+      name: "previewImage",
+      title: "Preview Image",
+      type: "image",
+      options: { hotspot: true },
+      description: "Optional thumbnail image showing the add-on detail.",
+    },
+    {
+      name: "category",
+      title: "Category",
+      type: "string",
+      options: {
+        list: [
+          { title: "Embellishments", value: "embellishment" },
+          { title: "Wrappers & Paper", value: "wrapper" },
+          { title: "Packaging & Boxes", value: "packaging" },
+          { title: "Accessories & Keepsakes", value: "accessory" },
+        ],
+      },
+      initialValue: "embellishment",
+    },
+    {
+      name: "availability",
+      title: "In Stock & Available",
+      type: "boolean",
+      initialValue: true,
+    },
+    {
+      name: "displayOrder",
+      title: "Display Order",
+      type: "number",
+      initialValue: 0,
+    },
+  ],
+};

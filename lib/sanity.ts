@@ -1,5 +1,5 @@
 import { createClient } from "next-sanity";
-import { Product, Category, Testimonial, FAQItem, GlobalSettings, HeroData } from "@/types";
+import { Product, Category, Testimonial, FAQItem, GlobalSettings, HeroData, Addon } from "@/types";
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "placeholder-id";
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
@@ -10,55 +10,187 @@ export const sanityClient = createClient({
   dataset,
   apiVersion,
   useCdn: process.env.NODE_ENV === "production",
-  token: process.env.SANITY_API_TOKEN, // token for writing data or secure fetches
+  token: process.env.SANITY_API_TOKEN,
 });
 
-// A curated set of high-end premium mock products representing the luxury CrisCrafts catalogue
+// Reusable Add-on documents catalog
+const MOCK_ADDONS: Addon[] = [
+  {
+    _id: "addon-glitter",
+    name: "Spray Sparkly Glitter Dust",
+    slug: "glitter-dust",
+    price: 50,
+    description: "Fine glass-shimmer dust sprayed lightly across rose petals for a dreamy sparkle.",
+    icon: "sparkles",
+    category: "embellishment",
+    availability: true,
+  },
+  {
+    _id: "addon-snowpaper",
+    name: "Textured White Snow Paper Wrap",
+    slug: "snow-paper",
+    price: 100,
+    description: "Structured, snow-embossed Japanese craft wrapping paper tied with cotton thread.",
+    icon: "snow",
+    category: "wrapper",
+    availability: true,
+  },
+  {
+    _id: "addon-[#pearls]",
+    name: "Dainty Pearl Blossom Pins",
+    slug: "pearl-pins",
+    price: 150,
+    description: "Hand-inserted faux pearl pins nestled inside petal centers.",
+    icon: "gem",
+    category: "embellishment",
+    availability: true,
+  },
+  {
+    _id: "addon-lights",
+    name: "Warm LED Fairy Lights Woven",
+    slug: "led-lights",
+    price: 250,
+    description: "Warm golden micro LED string lights with concealed battery toggle.",
+    icon: "lights",
+    category: "accessory",
+    availability: true,
+  },
+  {
+    _id: "addon-teddy",
+    name: "Mini Plushie Bear Companion",
+    slug: "mini-teddy",
+    price: 350,
+    description: "Soft plushie bear clip attached to the central ribbon bow.",
+    icon: "teddy",
+    category: "accessory",
+    availability: true,
+  },
+];
+
+// Curated high-end mock products representing the luxury CrisCrafts catalogue
 const MOCK_PRODUCTS: Product[] = [
   {
     _id: "mock-1",
     title: "Elysian Rose Ribbon Bouquet",
     slug: "elysian-rose-ribbon-bouquet",
-    price: 2450,
-    discountPrice: 2100,
-    description: "Indulge in eternal beauty with our signature Elysian Ribbon Bouquet. Individually shaped satin ribbons are assembled by hand to create a breathtaking bouquet that never fades. Embellished with delicate glitter accents and wrapped in organic snow paper, this piece tells a story of enduring affection.",
+    price: 1850,
+    discountPrice: 1650,
+    description: "Indulge in eternal beauty with our signature Elysian Ribbon Bouquet. Individually shaped satin ribbons are assembled loop by loop by master artisans. Choose your preferred bouquet size, rose petal colors, luxury wrappers, and add-ons to create a bespoke masterpiece that never fades.",
     images: [
       "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=1000&q=80",
-      "https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&fit=crop&w=1000&q=80"
+      "https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=1000&q=80"
     ],
     category: { title: "Ribbon Bouquets", slug: "ribbon-bouquets" },
     collections: ["anniversary-gifts", "valentines-collection"],
     availability: true,
     tags: ["Best Seller", "Handcrafted", "Eternal"],
     rating: 4.9,
-    reviewsCount: 28,
-    hasGlitterOption: true,
-    hasSnowPaperOption: true,
+    reviewsCount: 34,
     hasGiftNoteOption: true,
-    variants: [
+    deliveryInfo: "Handcrafted to order. Ships in 3-5 business days across Nepal.",
+    
+    // Customization Groups Architecture
+    optionGroups: [
       {
-        name: "Flower Color",
+        name: "Choose Bouquet Size",
+        type: "size",
         required: true,
         options: [
-          { name: "Muted Blush Pink", priceImpact: 0 },
-          { name: "Vintage Champagne", priceImpact: 0 },
-          { name: "Deep Crimson", priceImpact: 100 },
-          { name: "Soft Lavender", priceImpact: 0 }
+          { name: "Single Rose", value: "single-rose", priceImpact: 0 },
+          { name: "3 Roses Bouquet", value: "3-roses", priceImpact: 600 },
+          { name: "5 Roses Bouquet", value: "5-roses", priceImpact: 1200 },
+          { name: "7 Roses Bouquet", value: "7-roses", priceImpact: 1800 },
+          { name: "20 Roses Luxury Edition", value: "20-roses", priceImpact: 4800 }
         ]
       },
       {
-        name: "Ribbon Style",
+        name: "Choose Flower Color",
+        type: "color",
         required: true,
         options: [
-          { name: "Satin Pink Ribbon", priceImpact: 0 },
-          { name: "Gold Edged Organza", priceImpact: 150 },
-          { name: "Minimalist Ivory Cotton", priceImpact: 50 }
+          { name: "Muted Blush Pink", value: "blush-pink", hexColor: "#F28F9E", priceImpact: 0, previewImage: "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=1000&q=80" },
+          { name: "Vintage Champagne Gold", value: "champagne", hexColor: "#D4B26F", priceImpact: 0, previewImage: "https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&fit=crop&w=1000&q=80" },
+          { name: "Deep Royal Crimson", value: "crimson", hexColor: "#991B1B", priceImpact: 100, previewImage: "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=1000&q=80" },
+          { name: "Soft Lavender Violet", value: "lavender", hexColor: "#C084FC", priceImpact: 0, previewImage: "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=1000&q=80" },
+          { name: "Pure Ivory Snow", value: "ivory-white", hexColor: "#FAF9F6", priceImpact: 0 }
+        ]
+      },
+      {
+        name: "Choose Wrapper",
+        type: "wrapper",
+        required: true,
+        options: [
+          { name: "Classic Cream Parchment", value: "cream-parchment", hexColor: "#F9F6F0", priceImpact: 0 },
+          { name: "Textured White Snow Paper", value: "snow-paper", hexColor: "#FFFFFF", priceImpact: 100 },
+          { name: "Matte Midnight Slate", value: "midnight-slate", hexColor: "#1E293B", priceImpact: 50 },
+          { name: "Organza Gold Lace Trim", value: "organza-gold", hexColor: "#EBF3F5", priceImpact: 150 }
         ]
       }
     ],
+
+    // Gallery Groups Linked to Bouquet Size
+    galleryGroups: [
+      {
+        title: "Single Rose Showcase",
+        optionValue: "single-rose",
+        images: [
+          "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=1000&q=80",
+          "https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&fit=crop&w=1000&q=80",
+          "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=1000&q=80"
+        ]
+      },
+      {
+        title: "3 Roses Bouquet Gallery",
+        optionValue: "3-roses",
+        images: [
+          "https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&fit=crop&w=1000&q=80",
+          "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=1000&q=80",
+          "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=1000&q=80",
+          "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1000&q=80"
+        ]
+      },
+      {
+        title: "5 Roses Collection Gallery",
+        optionValue: "5-roses",
+        images: [
+          "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=1000&q=80",
+          "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=1000&q=80",
+          "https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&fit=crop&w=1000&q=80",
+          "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=1000&q=80",
+          "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1000&q=80"
+        ]
+      },
+      {
+        title: "7 Roses Bouquet Gallery",
+        optionValue: "7-roses",
+        images: [
+          "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=1000&q=80",
+          "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=1000&q=80",
+          "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=1000&q=80",
+          "https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&fit=crop&w=1000&q=80"
+        ]
+      },
+      {
+        title: "20 Roses Grand Edition",
+        optionValue: "20-roses",
+        images: [
+          "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1000&q=80",
+          "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=1000&q=80",
+          "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=1000&q=80",
+          "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=1000&q=80",
+          "https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&fit=crop&w=1000&q=80"
+        ]
+      }
+    ],
+
+    // Reusable Add-ons
+    addons: MOCK_ADDONS,
+
     reviews: [
-      { id: "r1", author: "Aria K.", rating: 5, date: "2026-06-15", text: "The craftsmanship is absolutely stunning. My mother was teary-eyed when she saw the custom details on the ribbon bouquet." },
-      { id: "r2", author: "Devin S.", rating: 5, date: "2026-07-02", text: "Exceptional quality. Far better than any real flower bouquet that would wither in days. The gold-edged ribbon option is a must!" }
+      { id: "r1", author: "Aria K.", rating: 5, date: "2026-06-15", text: "The craftsmanship is stunning. My mother was teary-eyed when she saw the custom rose colors and gift note." },
+      { id: "r2", author: "Devin S.", rating: 5, date: "2026-07-02", text: "Exceptional quality. Selecting the 5 Roses gallery gave me total confidence in how the final piece looks!" }
     ]
   },
   {
@@ -76,27 +208,27 @@ const MOCK_PRODUCTS: Product[] = [
     tags: ["Minimalist", "Desk Decor"],
     rating: 4.8,
     reviewsCount: 14,
-    hasGlitterOption: false,
-    hasSnowPaperOption: false,
     hasGiftNoteOption: true,
-    variants: [
+    optionGroups: [
       {
-        name: "Petal Color",
+        name: "Choose Petal Color",
+        type: "color",
         required: true,
         options: [
-          { name: "Blush Rose", priceImpact: 0 },
-          { name: "Warm Gold Yellow", priceImpact: 0 },
-          { name: "Dusty Blue", priceImpact: 50 }
+          { name: "Blush Rose", value: "blush-rose", hexColor: "#F28F9E", priceImpact: 0 },
+          { name: "Warm Gold Yellow", value: "gold-yellow", hexColor: "#D4B26F", priceImpact: 0 },
+          { name: "Dusty Lavender", value: "dusty-lavender", hexColor: "#C084FC", priceImpact: 50 }
         ]
       }
-    ]
+    ],
+    addons: [MOCK_ADDONS[0], MOCK_ADDONS[3]]
   },
   {
     _id: "mock-3",
     title: "Artisan Plushie: Clover the Bunny",
     slug: "clover-the-bunny-plushie",
     price: 3200,
-    description: "Clover is a luxury crochet plushie handcrafted with hypoallergenic soft-spun milk cotton yarn. Every loop is tight, ensuring a lifetime of warm hugs. Featuring custom-embroidered initials on the footpad for the ultimate bespoke gifting experience.",
+    description: "Clover is a luxury crochet plushie handcrafted with hypoallergenic soft-spun milk cotton yarn. Every loop is tight, ensuring a lifetime of warm hugs.",
     images: [
       "https://images.unsplash.com/photo-1559251606-c623743a6d76?auto=format&fit=crop&w=1000&q=80"
     ],
@@ -106,26 +238,35 @@ const MOCK_PRODUCTS: Product[] = [
     tags: ["Customizable", "Soft Yarn"],
     rating: 5.0,
     reviewsCount: 19,
-    hasGlitterOption: false,
-    hasSnowPaperOption: false,
     hasGiftNoteOption: true,
-    variants: [
+    optionGroups: [
       {
-        name: "Yarn Texture",
+        name: "Plushie Size",
+        type: "size",
         required: true,
         options: [
-          { name: "Super Soft Milk Cotton", priceImpact: 0 },
-          { name: "Fluffy Velvet Chenille", priceImpact: 350 }
+          { name: "Mini Desk Companion (8 in)", value: "mini", priceImpact: 0 },
+          { name: "Standard Huggable (14 in)", value: "standard", priceImpact: 800 }
+        ]
+      },
+      {
+        name: "Yarn Texture",
+        type: "radio",
+        required: true,
+        options: [
+          { name: "Super Soft Milk Cotton", value: "cotton", priceImpact: 0 },
+          { name: "Fluffy Velvet Chenille", value: "velvet", priceImpact: 350 }
         ]
       }
-    ]
+    ],
+    addons: [MOCK_ADDONS[3], MOCK_ADDONS[4]]
   },
   {
     _id: "mock-4",
     title: "Fuzzy Wire Meadow Keychain",
     slug: "fuzzy-wire-meadow-keychain",
     price: 450,
-    description: "A whimsical keychain shaped from ultra-soft premium fuzzy wires. This micro-crafted accessory features a tiny sunflower and lavender bundle, carrying a gentle organic texture. Adds an instant, cheerful artisan aesthetic to keys or bags.",
+    description: "A whimsical keychain shaped from ultra-soft premium fuzzy wires. Features a tiny sunflower and lavender bundle.",
     images: [
       "https://images.unsplash.com/photo-1582139329536-e7284fece509?auto=format&fit=crop&w=1000&q=80"
     ],
@@ -135,9 +276,20 @@ const MOCK_PRODUCTS: Product[] = [
     tags: ["New", "Cute", "Daily Luxury"],
     rating: 4.7,
     reviewsCount: 12,
-    hasGlitterOption: true,
-    hasSnowPaperOption: false,
     hasGiftNoteOption: false,
+    optionGroups: [
+      {
+        name: "Keyring Color",
+        type: "color",
+        required: true,
+        options: [
+          { name: "Rose Gold", value: "rose-gold", hexColor: "#B76E79", priceImpact: 0 },
+          { name: "Vintage Brass", value: "vintage-brass", hexColor: "#D4B26F", priceImpact: 0 },
+          { name: "Silver Chrome", value: "silver", hexColor: "#CBD5E1", priceImpact: 0 }
+        ]
+      }
+    ],
+    addons: [MOCK_ADDONS[0]]
   },
   {
     _id: "mock-5",
@@ -145,7 +297,7 @@ const MOCK_PRODUCTS: Product[] = [
     slug: "midnight-grace-surprise-box",
     price: 5400,
     discountPrice: 4900,
-    description: "The ultimate gifting gesture. Unbox an opulent display of fuzzy wire lavender, crochet tulips, handcrafted chocolate truffles, and a custom wax-sealed card. Neatly housed in a luxury cream presentation box with elegant gold leaf trim.",
+    description: "Unbox an opulent display of fuzzy wire lavender, crochet tulips, handcrafted chocolate truffles, and a custom wax-sealed card in a luxury presentation box.",
     images: [
       "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1000&q=80"
     ],
@@ -155,27 +307,27 @@ const MOCK_PRODUCTS: Product[] = [
     tags: ["Gift Box", "Premium Choice"],
     rating: 4.9,
     reviewsCount: 31,
-    hasGlitterOption: true,
-    hasSnowPaperOption: true,
     hasGiftNoteOption: true,
-    variants: [
+    optionGroups: [
       {
         name: "Occasion Theme",
+        type: "radio",
         required: true,
         options: [
-          { name: "Romantic Anniversary", priceImpact: 0 },
-          { name: "Golden Birthday Celebration", priceImpact: 100 },
-          { name: "Graduation Celebration", priceImpact: 50 }
+          { name: "Romantic Anniversary", value: "anniversary", priceImpact: 0 },
+          { name: "Golden Birthday Celebration", value: "birthday", priceImpact: 100 },
+          { name: "Graduation Honor", value: "graduation", priceImpact: 50 }
         ]
       }
-    ]
+    ],
+    addons: MOCK_ADDONS
   },
   {
     _id: "mock-6",
     title: "Golden Aura Graduation Bouquet",
     slug: "golden-aura-graduation-bouquet",
     price: 3600,
-    description: "Honor a momentous milestone with our handcrafted Graduation Bouquet. Featuring gold fuzzy wire blossoms representing prosperity, combined with deep green cotton crochet leaves. Wrapped in structured off-white parchment paper with premium black satin loops.",
+    description: "Featuring gold fuzzy wire blossoms representing prosperity, combined with deep green cotton crochet leaves.",
     images: [
       "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=1000&q=80"
     ],
@@ -185,9 +337,8 @@ const MOCK_PRODUCTS: Product[] = [
     tags: ["Graduation Exclusive", "Handcrafted"],
     rating: 4.9,
     reviewsCount: 16,
-    hasGlitterOption: true,
-    hasSnowPaperOption: true,
     hasGiftNoteOption: true,
+    addons: [MOCK_ADDONS[0], MOCK_ADDONS[1], MOCK_ADDONS[3]]
   }
 ];
 
@@ -202,15 +353,15 @@ const MOCK_CATEGORIES: Category[] = [
 
 const MOCK_TESTIMONIALS: Testimonial[] = [
   { _id: "t1", author: "Elena Rostova", role: "Creative Director", text: "CrisCrafts is standard-setting. The texture of the clover plushie and the subtle gold stitching are exquisite. It feels like stepping into a boutique in Paris.", rating: 5, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80" },
-  { _id: "t2", author: "Kiran Shrestha", role: "Art Collector", text: "I bought the Elysian Rose Bouquet for our anniversary, and my wife was stunned. The choice of satin ribbon, the delicate wrapping—every detail whispers quality.", rating: 5, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=80" },
-  { _id: "t3", author: "Sophia Martinez", role: "Lifestyle Designer", text: "The keychains are tiny works of art. Highly recommend the gift packaging. The box arrived tied with cotton thread and sealed with real wax. Breathtaking.", rating: 5, avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&h=120&q=80" }
+  { _id: "t2", author: "Kiran Shrestha", role: "Art Collector", text: "I bought the Elysian Rose Bouquet for our anniversary, and my wife was stunned. The choice of rose counts, satin ribbon, and snow paper wrapping was perfection.", rating: 5, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=80" },
+  { _id: "t3", author: "Sophia Martinez", role: "Lifestyle Designer", text: "The keychains and bouquets are tiny works of art. Highly recommend adding LED lights and the gift card note. Arrived packaged like royalty.", rating: 5, avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&h=120&q=80" }
 ];
 
 const MOCK_FAQS: FAQItem[] = [
-  { _id: "f1", question: "How long does it take to make a custom order?", answer: "Each item is crafted entirely by hand. Standard orders ship in 3-5 business days. Highly customized bouquets or bulk order boxes may require 7-10 days. We always suggest placing anniversary or graduation orders 2 weeks in advance.", category: "Orders" },
-  { _id: "f2", question: "Do you ship internationally?", answer: "We currently provide express shipping nationwide. International shipping can be arranged upon custom request through our WhatsApp line.", category: "Shipping" },
-  { _id: "f3", question: "What materials do you use?", answer: "We select only the finest organic milk cotton yarn, soft premium fuzzy wires, hypoallergenic stuffing, and heavy double-sided satin ribbons to ensure a luxurious tactile experience.", category: "Materials" },
-  { _id: "f4", question: "How does the WhatsApp checkout verification work?", answer: "After completing checkout on our website, a secure order ID is generated. Clicking 'Send WhatsApp Confirmation' opens a pre-composed message with your order details directly to our artisan team to finalize payment verification.", category: "Payment" }
+  { _id: "f1", question: "How long does it take to make a custom order?", answer: "Each item is crafted entirely by hand. Standard orders ship in 3-5 business days. Highly customized bouquets or bulk order boxes may require 7-10 days.", category: "Orders" },
+  { _id: "f2", question: "Do you ship internationally?", answer: "We currently provide express shipping nationwide in Nepal. International delivery can be arranged through our WhatsApp desk.", category: "Shipping" },
+  { _id: "f3", question: "What materials do you use?", answer: "We select organic milk cotton yarn, soft fuzzy wires, hypoallergenic stuffing, and heavy double-sided satin ribbons to ensure a luxury tactile experience.", category: "Materials" },
+  { _id: "f4", question: "How does gallery group switching work?", answer: "When you select different rose counts or bouquet sizes on a product page, the gallery group automatically switches to display professional photos of that exact size!", category: "Product Configurator" }
 ];
 
 // Helper to determine if Sanity is correctly set up
@@ -245,17 +396,44 @@ export async function getProducts(): Promise<Product[]> {
       tags,
       rating,
       reviewsCount,
-      hasGlitterOption,
-      hasSnowPaperOption,
-      hasGiftNoteOption,
-      variants
+      deliveryInfo,
+      galleryGroups[] {
+        title,
+        optionValue,
+        "images": coalesce(images[].asset->url, images),
+        "defaultImage": defaultImage.asset->url
+      },
+      optionGroups[] {
+        name,
+        type,
+        required,
+        options[] {
+          name,
+          value,
+          priceImpact,
+          hexColor,
+          "swatchImage": swatchImage.asset->url,
+          "previewImage": previewImage.asset->url,
+          availability
+        }
+      },
+      addons[]->{
+        _id,
+        name,
+        "slug": slug.current,
+        price,
+        description,
+        icon,
+        "previewImage": previewImage.asset->url,
+        category,
+        availability
+      }
     }`;
     const data = await sanityClient.fetch(query);
     if (!data || data.length === 0) {
       console.warn("Empty products returned from Sanity. Using fallback mock products.");
       return MOCK_PRODUCTS;
     }
-    // Deduplicate by slug to ensure draft and published versions never duplicate
     const uniqueProducts = Array.from(
       new Map(data.map((item: any) => [item.slug || item._id, item])).values()
     ) as Product[];
@@ -291,10 +469,38 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       tags,
       rating,
       reviewsCount,
-      hasGlitterOption,
-      hasSnowPaperOption,
-      hasGiftNoteOption,
-      variants,
+      deliveryInfo,
+      galleryGroups[] {
+        title,
+        optionValue,
+        "images": coalesce(images[].asset->url, images),
+        "defaultImage": defaultImage.asset->url
+      },
+      optionGroups[] {
+        name,
+        type,
+        required,
+        options[] {
+          name,
+          value,
+          priceImpact,
+          hexColor,
+          "swatchImage": swatchImage.asset->url,
+          "previewImage": previewImage.asset->url,
+          availability
+        }
+      },
+      addons[]->{
+        _id,
+        name,
+        "slug": slug.current,
+        price,
+        description,
+        icon,
+        "previewImage": previewImage.asset->url,
+        category,
+        availability
+      },
       reviews[] {
         id,
         author,
