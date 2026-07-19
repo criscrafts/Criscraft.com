@@ -23,8 +23,8 @@ const MOCK_PRODUCTS: Product[] = [
     discountPrice: 2100,
     description: "Indulge in eternal beauty with our signature Elysian Ribbon Bouquet. Individually shaped satin ribbons are assembled by hand to create a breathtaking bouquet that never fades. Embellished with delicate glitter accents and wrapped in organic snow paper, this piece tells a story of enduring affection.",
     images: [
-      "https://images.unsplash.com/photo-1596436889106-be35e843f974?auto=format&fit=crop&w=1000&q=80",
-      "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=1000&q=80"
+      "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&fit=crop&w=1000&q=80"
     ],
     category: { title: "Ribbon Bouquets", slug: "ribbon-bouquets" },
     collections: ["anniversary-gifts", "valentines-collection"],
@@ -192,7 +192,7 @@ const MOCK_PRODUCTS: Product[] = [
 ];
 
 const MOCK_CATEGORIES: Category[] = [
-  { _id: "cat-1", title: "Ribbon Bouquets", slug: "ribbon-bouquets", description: "Elegant, satin-shimmer bouquets styled to last a lifetime.", image: "https://images.unsplash.com/photo-1596436889106-be35e843f974?auto=format&fit=crop&w=600&q=80" },
+  { _id: "cat-1", title: "Ribbon Bouquets", slug: "ribbon-bouquets", description: "Elegant, satin-shimmer bouquets styled to last a lifetime.", image: "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80" },
   { _id: "cat-2", title: "Crochet Flowers", slug: "crochet-flowers", description: "Meticulously knitted standalone blooms made with soft organic cotton.", image: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=600&q=80" },
   { _id: "cat-3", title: "Crochet Plushies", slug: "crochet-plushies", description: "Adorable soft-spun companions crafted loop by loop.", image: "https://images.unsplash.com/photo-1559251606-c623743a6d76?auto=format&fit=crop&w=600&q=80" },
   { _id: "cat-4", title: "Fuzzy Wire Keychains", slug: "fuzzy-wire-keychains", description: "Dainty key accessories shaped from plush wire clusters.", image: "https://images.unsplash.com/photo-1582139329536-e7284fece509?auto=format&fit=crop&w=600&q=80" },
@@ -227,14 +227,14 @@ export async function getProducts(): Promise<Product[]> {
     return MOCK_PRODUCTS;
   }
   try {
-    const query = `*[_type == "product" && availability == true] {
+    const query = `*[_type == "product" && (availability == true || !defined(availability))] {
       _id,
       title,
       "slug": slug.current,
       price,
       discountPrice,
       description,
-      "images": images[].asset->url,
+      "images": coalesce(images[].asset->url, images),
       category->{
         title,
         "slug": slug.current
@@ -275,7 +275,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       price,
       discountPrice,
       description,
-      "images": images[].asset->url,
+      "images": coalesce(images[].asset->url, images),
       category->{
         title,
         "slug": slug.current

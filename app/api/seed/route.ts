@@ -50,7 +50,7 @@ interface MockFAQ {
 
 // Mock Data definitions to insert
 const MOCK_CATEGORIES: MockCategory[] = [
-  { _id: "cat-1", title: "Ribbon Bouquets", slug: "ribbon-bouquets", description: "Elegant, satin-shimmer bouquets styled to last a lifetime.", image: "https://images.unsplash.com/photo-1596436889106-be35e843f974?auto=format&fit=crop&w=600&q=80" },
+  { _id: "cat-1", title: "Ribbon Bouquets", slug: "ribbon-bouquets", description: "Elegant, satin-shimmer bouquets styled to last a lifetime.", image: "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80" },
   { _id: "cat-2", title: "Crochet Flowers", slug: "crochet-flowers", description: "Meticulously knitted standalone blooms made with soft organic cotton.", image: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=600&q=80" },
   { _id: "cat-3", title: "Crochet Plushies", slug: "crochet-plushies", description: "Adorable soft-spun companions crafted loop by loop.", image: "https://images.unsplash.com/photo-1559251606-c623743a6d76?auto=format&fit=crop&w=600&q=80" },
   { _id: "cat-4", title: "Fuzzy Wire Keychains", slug: "fuzzy-wire-keychains", description: "Dainty key accessories shaped from plush wire clusters.", image: "https://images.unsplash.com/photo-1582139329536-e7284fece509?auto=format&fit=crop&w=600&q=80" },
@@ -67,8 +67,8 @@ const MOCK_PRODUCTS: MockProduct[] = [
     discountPrice: 2100,
     description: "Indulge in eternal beauty with our signature Elysian Ribbon Bouquet. Handcrafted satin ribbons are individually shaped and assembled to create a breathtaking bouquet that never fades. Embellished with delicate glitter accents and wrapped in organic snow paper.",
     images: [
-      "https://images.unsplash.com/photo-1596436889106-be35e843f974?auto=format&fit=crop&w=1000&q=80",
-      "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=1000&q=80"
+      "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&fit=crop&w=1000&q=80"
     ],
     category: { title: "Ribbon Bouquets", slug: "ribbon-bouquets" },
     collections: ["anniversary-gifts", "valentines-collection"],
@@ -299,7 +299,7 @@ export async function GET() {
       primaryButtonLink: "/shop",
       secondaryButtonText: "Our Story",
       secondaryButtonLink: "/#our-story",
-      mainImage: await uploadImageFromUrl("https://images.unsplash.com/photo-1596436889106-be35e843f974?auto=format&fit=crop&w=1000&q=80")
+      mainImage: await uploadImageFromUrl("https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=1000&q=80")
     });
     logs.push("Homepage Hero seeded successfully.");
 
