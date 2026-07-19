@@ -1,37 +1,30 @@
 # CrisCrafts Master Google Sheets Order Ledger & Executive Dashboard Setup Guide
 
-This guide details how to set up the **CrisCrafts Studio v4 Master Google Apps Script Bridge** connecting your Next.js serverless application on Vercel with Google Sheets and Google Drive.
+This guide details how to set up the **CrisCrafts Studio v5 Master Google Apps Script Bridge** connecting your Next.js serverless application on Vercel with Google Sheets and Google Drive.
 
-The **CrisCrafts Studio v4 Script** includes:
-1. **Fail-Safe Spreadsheet Access**: Prevents `"Service Spreadsheets failed while accessing document with id..."` errors by utilizing `SPREADSHEET_ID` configuration fallback.
-2. **Instant Admin Email Notifications**: Automatically sends styled HTML order alert emails to the boutique owner/team upon checkout.
-3. **Automated PDF Invoice & Packing Slip Generator**: Creates luxury PDF invoices stored in a `CrisCrafts Invoices` Google Drive folder, with clickable links stored directly in the Google Sheet.
-4. **Dynamic Yearly Order Ledgers** (`Orders 2026`, `Orders 2027`): Styled navy headers (`#1E293B`), formatted currency columns (`Rs. #,##0`), preserved phone numbers (`'`), and interactive `Order Status` dropdowns.
-5. **Executive Dashboard v4**: Real-time KPI Cards (Revenue, Orders, AOV, Pending, Delivered), Regional Breakdown, Order Lifecycle Status Breakdown, Top Selling Items Summary, and Multi-Year Performance Breakdown.
-6. **Interactive Studio Menu (`CrisCrafts Studio 🎨`)**:
-   - `🔄 Refresh Dashboard Metrics`
-   - `🔍 Search Customer VIP Profile` (Lookup customer lifetime value, total orders, and VIP tier by phone/name)
-   - `💾 Backup Orders to Google Drive` (One-click CSV backup engine)
-   - `➕ Create New Year Sheet`
-   - `🎨 Format All Order Sheets`
-   - `⚡ Run Health Check & Setup`
+The **CrisCrafts Studio v5 Script** includes:
+1. **Tri-Tier Fail-Safe Spreadsheet Access**: Uses `getActiveSpreadsheet()`, `openById(SPREADSHEET_ID)`, and Drive file search fallbacks to guarantee 100% spreadsheet access without trigger errors.
+2. **Formula & HTML Injection Guard**: Automatically sanitizes customer inputs (`=`, `+`, `-`, `@`) to prevent Google Sheets formula injection and escapes HTML in emails/PDFs.
+3. **Duplicate Order Protection**: Deduplicates incoming webhook retries to prevent double logging.
+4. **Real-Time `onEdit(e)` Auto-Sync**: Automatically recalculates the Executive Dashboard whenever an admin updates an order status (`WhatsApp Pending` ➔ `Delivered`).
+5. **Instant Admin Email Notifications**: Sends styled HTML order alert emails to the boutique owner/team upon checkout.
+6. **Automated PDF Invoice Engine**: Generates luxury PDF receipts in Google Drive (`CrisCrafts Invoices` folder) and attaches clickable links in the Sheet.
+7. **Dynamic Yearly Order Ledgers** (`Orders 2026`, `Orders 2027`): Styled navy headers (`#1E293B`), formatted currency columns (`Rs. #,##0`), preserved phone numbers (`'`), and interactive `Order Status` dropdowns.
+8. **Executive Dashboard v5**: Real-time KPI Cards (Revenue, Orders Count, Current Year Revenue, AOV, Pending, Delivered), Regional Breakdown, Order Lifecycle Status Breakdown, Top Sellers, and Multi-Year Performance.
+9. **Interactive Studio Menu (`CrisCrafts Studio 🎨`)**: Toolbar options for VIP Customer Search, One-Click Google Drive CSV Backups, Metrics Refresh, and Health Diagnostics.
 
 ---
 
 ## Troubleshooting Error: "Service Spreadsheets failed while accessing document with id..."
 
 ### Cause:
-This error occurs when Google Apps Script runs `SpreadsheetApp.getActiveSpreadsheet()` on a script project bound to a document ID that has been **deleted, moved, unshared, or replaced**, or when executed in standalone Web App mode.
+This error occurs when Google Apps Script runs `SpreadsheetApp.openById(...)` inside an `onOpen()` simple trigger context. Simple triggers in Google Sheets are strictly forbidden by Google Security from running `openById(...)`.
 
 ### Solution:
 1. Open your active Google Sheet (**CrisCrafts Orders**).
-2. Copy the Spreadsheet ID from the URL bar in your browser:
-   `https://docs.google.com/spreadsheets/d/` **`11FkHI4W3cvBMjyWUW4QxfQQ8toc7M5PPnFAe-P7yj-k`** `/edit`
-3. In Apps Script (`Code.gs`), set line 20:
-   ```javascript
-   var SPREADSHEET_ID = "YOUR_NEW_SPREADSHEET_ID_HERE";
-   ```
-4. Save (`Ctrl + S`) and redeploy the Web App.
+2. Open **Extensions** > **Apps Script**.
+3. In `Code.gs`, leave line 20 empty: `var SPREADSHEET_ID = "";` (the script automatically uses `SpreadsheetApp.getActiveSpreadsheet()` first).
+4. Save (`Ctrl + S`) and refresh your Google Sheet tab (`F5`).
 
 ---
 
@@ -41,24 +34,27 @@ This error occurs when Google Apps Script runs `SpreadsheetApp.getActiveSpreadsh
 
 ```javascript
 /**
- * CrisCrafts Artisan Boutique — Ultimate Google Apps Script Order Ledger & Executive Dashboard v4
+ * CrisCrafts Artisan Boutique — Ultimate Google Apps Script Order Ledger & Executive Dashboard v5
  * 
- * Features:
- * 1. Fail-Safe Access: Fixes "Service Spreadsheets failed..." errors using SPREADSHEET_ID fallback.
- * 2. Instant Email Alerts: Sends styled HTML order notification emails to admin/owner upon checkout.
- * 3. PDF Invoice Engine: Generates luxury PDF receipts in Google Drive "CrisCrafts Invoices" folder and attaches links in Sheet.
- * 4. Dynamic Yearly Ledgers: Auto-creates yearly sheets ("Orders 2026", "Orders 2027", etc.) with status dropdowns.
- * 5. Executive Dashboard v4: 6 KPI Cards, Regional Distribution, Order Lifecycle Status, Top Sellers, and Yearly Breakdown.
- * 6. Interactive Toolbar ("CrisCrafts Studio 🎨"): Refresh metrics, VIP customer search, Drive backups, and health diagnostics.
+ * Master Features:
+ * 1. Tri-Tier Fail-Safe Access: Priorities getActiveSpreadsheet() -> openById(ID) -> DriveApp search.
+ * 2. Formula & HTML Injection Guard: Sanitizes formula prefixes (=, +, -, @) and escapes HTML in PDFs/emails.
+ * 3. Duplicate Order Guard: Deduplicates webhook retries to prevent duplicate row entries.
+ * 4. Real-time onEdit Auto-Sync: Auto-refreshes Executive Dashboard when order statuses are updated.
+ * 5. Instant Email Alerts: Sends styled HTML order notification emails to admin/owner.
+ * 6. PDF Invoice Engine: Generates luxury PDF receipts in Google Drive "CrisCrafts Invoices" folder with Sheet links.
+ * 7. Dynamic Yearly Ledgers: Auto-creates yearly sheets ("Orders 2026", "Orders 2027", etc.) with status dropdowns.
+ * 8. Executive Dashboard v5: 6 KPI Cards, Regional Distribution, Order Status Breakdown, and Multi-Year Performance.
+ * 9. Interactive Toolbar ("CrisCrafts Studio 🎨"): Refresh metrics, VIP customer search, Drive backups, health checks.
  */
 
 // ============================================================================
 // CRISCRAFTS MASTER CONFIGURATION
 // ============================================================================
 
-// 1. SPREADSHEET ID:
-// Leave empty ("") if script is container-bound inside your sheet.
-// If you encounter "Service Spreadsheets failed...", paste your Google Sheet ID below.
+// 1. SPREADSHEET ID (Optional):
+// Leave empty ("") if script is created inside your Google Sheet via Extensions > Apps Script.
+// If running as standalone script, paste your Google Sheet ID below.
 var SPREADSHEET_ID = ""; // e.g. "11FkHI4W3cvBMjyWUW4QxfQQ8toc7M5PPnFAe-P7yj-k"
 
 // 2. ADMIN EMAIL NOTIFICATIONS:
@@ -76,9 +72,10 @@ var ENABLE_PDF_INVOICES = true;
 // ============================================================================
 
 /**
- * Fail-safe spreadsheet accessor helper
+ * Tri-tier fail-safe spreadsheet accessor helper
  */
 function getSpreadsheet() {
+  // Priority 1: Active Spreadsheet (Container-bound UI & simple triggers)
   try {
     var activeSs = SpreadsheetApp.getActiveSpreadsheet();
     if (activeSs) return activeSs;
@@ -86,6 +83,7 @@ function getSpreadsheet() {
     Logger.log("getActiveSpreadsheet failed: " + e.toString());
   }
 
+  // Priority 2: Configured SPREADSHEET_ID (Web App Execution)
   if (typeof SPREADSHEET_ID === "string" && SPREADSHEET_ID.trim() !== "" && SPREADSHEET_ID !== "YOUR_SPREADSHEET_ID_HERE") {
     try {
       return SpreadsheetApp.openById(SPREADSHEET_ID.trim());
@@ -94,7 +92,18 @@ function getSpreadsheet() {
     }
   }
 
-  throw new Error("Unable to access Google Spreadsheet. Please set SPREADSHEET_ID at line 20 of Code.gs to your Google Sheet ID.");
+  // Priority 3: Drive File Lookup Fallback
+  try {
+    var files = DriveApp.getFilesByName("CrisCrafts Orders");
+    if (files.hasNext()) {
+      var file = files.next();
+      return SpreadsheetApp.openById(file.getId());
+    }
+  } catch (driveErr) {
+    Logger.log("Drive search failed: " + driveErr.toString());
+  }
+
+  throw new Error("Unable to access Google Spreadsheet. Please verify your script is inside Google Sheets.");
 }
 
 // Custom Menu Trigger on Sheet Open
@@ -109,6 +118,46 @@ function onOpen() {
     .addItem('🎨 Format All Order Sheets', 'formatAllOrderSheets')
     .addItem('⚡ Run Setup & Health Check', 'runHealthCheck')
     .addToUi();
+}
+
+/**
+ * Real-time sheet edit trigger: Auto-syncs Executive Dashboard when order statuses change
+ */
+function onEdit(e) {
+  if (!e || !e.range) return;
+  try {
+    var sheetName = e.range.getSheet().getName();
+    if (sheetName.indexOf("Orders ") === 0) {
+      updateExecutiveDashboard(e.source);
+    }
+  } catch (err) {
+    Logger.log("onEdit trigger error: " + err.toString());
+  }
+}
+
+/**
+ * Input Sanitization Helper: Prevents Formula Injection (=, +, -, @) in Google Sheets
+ */
+function sanitizeInput(val) {
+  if (val === null || val === undefined) return "";
+  var str = String(val).trim();
+  if (/^[=+\-@]/.test(str)) {
+    return "'" + str; // Lead quote prevents spreadsheet execution
+  }
+  return str;
+}
+
+/**
+ * HTML Entity Escaper for Safe PDF & Email Templating
+ */
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 /**
@@ -135,6 +184,20 @@ function doPost(e) {
     
     var sheet = getOrCreateYearSheet(ss, sheetName);
     
+    // Deduplication Check: Prevent Duplicate Row Insertion for Retried Webhooks
+    var existingData = sheet.getDataRange().getValues();
+    for (var i = 1; i < existingData.length; i++) {
+      if (String(existingData[i][0]).trim() === String(data.orderId).trim()) {
+        Logger.log("Duplicate order webhook ignored: " + data.orderId);
+        return responseJson({ 
+          success: true, 
+          orderId: data.orderId, 
+          yearSheet: sheetName, 
+          isDuplicate: true 
+        });
+      }
+    }
+    
     var timestamp = data.createdAt ? new Date(data.createdAt) : new Date();
     var shippingRegion = data.shippingRegion || (
       data.shippingMethod === "outside-valley" ? "Outside Valley (Rs. 250)" : "Inside Valley (Rs. 150)"
@@ -150,22 +213,22 @@ function doPost(e) {
       }
     }
 
-    // Append order row
+    // Append sanitized order row
     sheet.appendRow([
-      data.orderId,
+      sanitizeInput(data.orderId),
       timestamp,
-      data.customerName,
-      "'" + data.phone, // Lead quote preserves phone formatting
-      data.address,
-      shippingRegion,
-      data.productSummary || "Standard Order",
+      sanitizeInput(data.customerName),
+      "'" + String(data.phone).replace(/[\s\-\(\)]/g, ""), // Lead quote preserves phone format
+      sanitizeInput(data.address),
+      sanitizeInput(shippingRegion),
+      sanitizeInput(data.productSummary || "Standard Order"),
       Number(data.totalQuantity || 1),
       Number(data.subtotal || 0),
       Number(data.shippingCost || 0),
       Number(data.total || 0),
-      data.paymentMethod || "WhatsApp Payment",
+      sanitizeInput(data.paymentMethod || "WhatsApp Payment"),
       "WhatsApp Pending", // Default Order Status
-      data.notes || "",
+      sanitizeInput(data.notes || ""),
       pdfInvoiceUrl ? pdfInvoiceUrl : "N/A"
     ]);
     
@@ -297,11 +360,11 @@ function getOrCreateYearSheet(ss, sheetName) {
 }
 
 // ============================================================================
-// EXECUTIVE DASHBOARD v4 ENGINE
+// EXECUTIVE DASHBOARD v5 ENGINE
 // ============================================================================
 
 /**
- * Creates and updates the Executive Dashboard v4 sheet
+ * Creates and updates the Executive Dashboard v5 sheet
  */
 function updateExecutiveDashboard(ss) {
   var ss = ss || getSpreadsheet();
@@ -316,7 +379,7 @@ function updateExecutiveDashboard(ss) {
   
   // Title Banner
   dash.getRange("A1:I1").merge()
-      .setValue("🎨 CRISCRAFTS ARTISAN BOUTIQUE — EXECUTIVE DASHBOARD v4 MASTER")
+      .setValue("🎨 CRISCRAFTS ARTISAN BOUTIQUE — EXECUTIVE DASHBOARD v5 MASTER")
       .setBackground("#1E293B")
       .setFontColor("#FCFBF7")
       .setFontSize(13)
@@ -480,7 +543,7 @@ function updateExecutiveDashboard(ss) {
 // ============================================================================
 
 /**
- * Generates a luxury PDF invoice stored in Google Drive
+ * Generates a luxury PDF invoice stored in Google Drive with HTML Escaping
  */
 function generatePdfInvoice(ss, data) {
   var folderName = "CrisCrafts Invoices";
@@ -488,6 +551,15 @@ function generatePdfInvoice(ss, data) {
   var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
   
   var dateStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm");
+  
+  var safeOrderId = escapeHtml(data.orderId);
+  var safeName = escapeHtml(data.customerName);
+  var safePhone = escapeHtml(data.phone);
+  var safeAddress = escapeHtml(data.address);
+  var safeRegion = escapeHtml(data.shippingRegion || "Standard Shipping");
+  var safePayment = escapeHtml(data.paymentMethod || "WhatsApp Payment");
+  var safeSummary = escapeHtml(data.productSummary || "Standard Order");
+  var safeNotes = escapeHtml(data.notes || "");
   
   var htmlContent = `
     <!DOCTYPE html>
@@ -518,29 +590,29 @@ function generatePdfInvoice(ss, data) {
       <table class="grid">
         <tr>
           <td class="label">Order ID:</td>
-          <td><strong>${data.orderId}</strong></td>
+          <td><strong>${safeOrderId}</strong></td>
           <td class="label">Date:</td>
           <td>${dateStr}</td>
         </tr>
         <tr>
           <td class="label">Customer Name:</td>
-          <td>${data.customerName}</td>
+          <td>${safeName}</td>
           <td class="label">Phone:</td>
-          <td>${data.phone}</td>
+          <td>${safePhone}</td>
         </tr>
         <tr>
           <td class="label">Delivery Address:</td>
-          <td colspan="3">${data.address} (${data.shippingRegion || "Standard Shipping"})</td>
+          <td colspan="3">${safeAddress} (${safeRegion})</td>
         </tr>
         <tr>
           <td class="label">Payment Method:</td>
-          <td colspan="3">${data.paymentMethod || "WhatsApp Payment"}</td>
+          <td colspan="3">${safePayment}</td>
         </tr>
       </table>
       
       <div class="box">
         <div class="summary-title">Purchased Items & Customizations</div>
-        <div class="summary-text">${data.productSummary || "Standard Order"}</div>
+        <div class="summary-text">${safeSummary}</div>
       </div>
       
       <div class="total-box">
@@ -549,7 +621,7 @@ function generatePdfInvoice(ss, data) {
         <div class="grand-total">Grand Total: Rs. ${(data.total || 0).toLocaleString()}</div>
       </div>
       
-      ${data.notes ? `<div style="margin-top:20px; font-size:12px; color:#475569;"><strong>Customer Notes:</strong> ${data.notes}</div>` : ''}
+      ${safeNotes ? `<div style="margin-top:20px; font-size:12px; color:#475569;"><strong>Customer Notes:</strong> ${safeNotes}</div>` : ''}
       
       <div class="footer">
         Thank you for choosing CrisCrafts Handcrafted Boutique! ❤️<br>
@@ -559,8 +631,8 @@ function generatePdfInvoice(ss, data) {
     </html>
   `;
   
-  var blob = Utilities.newBlob(htmlContent, "text/html", "Invoice_" + data.orderId + ".html");
-  var pdfFile = folder.createFile(blob.getAs("application/pdf")).setName("Invoice_" + data.orderId + ".pdf");
+  var blob = Utilities.newBlob(htmlContent, "text/html", "Invoice_" + safeOrderId + ".html");
+  var pdfFile = folder.createFile(blob.getAs("application/pdf")).setName("Invoice_" + safeOrderId + ".pdf");
   pdfFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
   
   return pdfFile.getUrl();
@@ -576,28 +648,35 @@ function sendAdminEmailNotification(data, pdfUrl) {
     
   if (!recipient) return;
   
-  var subject = "🛍️ New Order Received: " + data.orderId + " (" + data.customerName + ")";
+  var safeOrderId = escapeHtml(data.orderId);
+  var safeName = escapeHtml(data.customerName);
+  var safePhone = escapeHtml(data.phone);
+  var safeAddress = escapeHtml(data.address);
+  var safeRegion = escapeHtml(data.shippingRegion || "Standard");
+  var safeSummary = escapeHtml(data.productSummary || "Standard Order");
+  
+  var subject = "🛍️ New Order Received: " + safeOrderId + " (" + safeName + ")";
   
   var bodyHtml = `
     <div style="font-family: Arial, sans-serif; background:#F8FAFC; padding:20px;">
       <div style="max-width:600px; background:#FFF; border-radius:12px; border:1px solid #E2E8F0; padding:25px; margin:0 auto;">
         <h2 style="color:#1E293B; margin-top:0; border-bottom:2px solid #D4B26F; padding-bottom:10px;">
-          🎁 New Order Placed: ${data.orderId}
+          🎁 New Order Placed: ${safeOrderId}
         </h2>
         
         <p style="font-size:14px; color:#334155;">A new handcrafted order has just been submitted on <strong>CrisCrafts</strong>!</p>
         
         <table style="width:100%; font-size:13px; color:#475569; margin-bottom:20px;">
-          <tr><td style="font-weight:bold; width:130px;">Customer Name:</td><td>${data.customerName}</td></tr>
-          <tr><td style="font-weight:bold;">Phone Number:</td><td><a href="tel:${data.phone}">${data.phone}</a></td></tr>
-          <tr><td style="font-weight:bold;">Shipping Address:</td><td>${data.address}</td></tr>
-          <tr><td style="font-weight:bold;">Shipping Region:</td><td>${data.shippingRegion || "Standard"}</td></tr>
+          <tr><td style="font-weight:bold; width:130px;">Customer Name:</td><td>${safeName}</td></tr>
+          <tr><td style="font-weight:bold;">Phone Number:</td><td><a href="tel:${safePhone}">${safePhone}</a></td></tr>
+          <tr><td style="font-weight:bold;">Shipping Address:</td><td>${safeAddress}</td></tr>
+          <tr><td style="font-weight:bold;">Shipping Region:</td><td>${safeRegion}</td></tr>
           <tr><td style="font-weight:bold;">Grand Total:</td><td style="color:#3B79C6; font-size:16px; font-weight:bold;">Rs. ${(data.total || 0).toLocaleString()}</td></tr>
         </table>
         
         <div style="background:#F1F5F9; border-radius:8px; padding:15px; font-size:12px; margin-bottom:20px;">
           <strong>Order Items Summary:</strong><br>
-          <pre style="font-family:inherit; white-space:pre-wrap; margin-top:8px;">${data.productSummary || "Standard Order"}</pre>
+          <pre style="font-family:inherit; white-space:pre-wrap; margin-top:8px;">${safeSummary}</pre>
         </div>
         
         ${pdfUrl ? `<p><a href="${pdfUrl}" style="background:#1E293B; color:#FFF; padding:10px 18px; text-decoration:none; border-radius:6px; font-size:13px; font-weight:bold;">📄 View PDF Invoice in Drive</a></p>` : ''}
@@ -619,7 +698,7 @@ function sendAdminEmailNotification(data, pdfUrl) {
 function refreshDashboardMetrics() {
   var ss = getSpreadsheet();
   updateExecutiveDashboard(ss);
-  SpreadsheetApp.getUi().alert("✅ CrisCrafts Executive Dashboard v4 successfully refreshed!");
+  SpreadsheetApp.getUi().alert("✅ CrisCrafts Executive Dashboard v5 successfully refreshed!");
 }
 
 function promptNewYearSheet() {
@@ -761,7 +840,7 @@ function runHealthCheck() {
 1. Click the blue **Deploy** button at the top right, then select **New deployment**.
 2. Click the gear icon next to "Select type" and select **Web app**.
 3. Configure settings:
-   - **Description**: `CrisCrafts Master Webhook Bridge v4`
+   - **Description**: `CrisCrafts Master Webhook Bridge v5`
    - **Execute as**: `Me (your-email@gmail.com)`
    - **Who has access**: `Anyone`
 4. Click **Deploy**.
