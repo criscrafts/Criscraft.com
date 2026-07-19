@@ -142,8 +142,9 @@ export const Navbar: React.FC<{ settings: GlobalSettings | null }> = ({ settings
             {/* Mobile Menu Trigger */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 md:hidden rounded-full hover:bg-soft-cream/60 transition-colors duration-300 focus:outline-none"
-              aria-label="Toggle Mobile Menu"
+              className="p-2 md:hidden rounded-full hover:bg-soft-cream/60 transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-soft-gold"
+              aria-label={isMobileMenuOpen ? "Close Mobile Navigation Menu" : "Open Mobile Navigation Menu"}
+              aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? <X className="w-6 h-6 text-deep-slate" /> : <Menu className="w-6 h-6 text-deep-slate" />}
             </button>

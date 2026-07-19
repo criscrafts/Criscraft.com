@@ -1,4 +1,4 @@
-import { CartItem, CartCustomizations, Product, Addon } from "@/types";
+import { CartItem, CartCustomizations, Product, Addon, ProductOptionGroup, ProductOptionValue } from "@/types";
 
 /**
  * Formats a numeric price into a luxury Nepalese Rupee string.
@@ -17,7 +17,7 @@ export function calculateItemUnitPrice(
   basePrice?: number | null,
   discountPrice?: number | null,
   customizations?: CartCustomizations,
-  product?: Product | any
+  product?: Product | null
 ): number {
   const safeBasePrice = typeof basePrice === "number" && !isNaN(basePrice) ? basePrice : 0;
   const safeDiscountPrice =
@@ -31,11 +31,11 @@ export function calculateItemUnitPrice(
 
   // 1. Process Dynamic Option Groups Price Impacts
   if (customizations.selectedOptions && product?.optionGroups) {
-    product.optionGroups.forEach((group: any) => {
+    product.optionGroups.forEach((group: ProductOptionGroup) => {
       const selectedValueName = customizations.selectedOptions?.[group.name];
       if (selectedValueName && group.options) {
         const matchedOpt = group.options.find(
-          (opt: any) => opt.name === selectedValueName || opt.value === selectedValueName
+          (opt: ProductOptionValue) => opt.name === selectedValueName || opt.value === selectedValueName
         );
         if (matchedOpt && typeof matchedOpt.priceImpact === "number" && matchedOpt.priceImpact > 0) {
           price += matchedOpt.priceImpact;

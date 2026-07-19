@@ -17,7 +17,11 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "CrisCrafts | Premium Luxury Artisan Gift Boutique",
+  metadataBase: new URL("https://criscrafts.com"),
+  title: {
+    default: "CrisCrafts | Premium Luxury Artisan Gift Boutique",
+    template: "%s | CrisCrafts Artisan Boutique",
+  },
   description:
     "Crafting stories, one handmade detail at a time. Explore our luxury collection of custom ribbon bouquets, crochet flowers, plushies, and custom surprise boxes made with love.",
   keywords: [
@@ -29,16 +33,25 @@ export const metadata: Metadata = {
     "CrisCrafts",
   ],
   icons: {
-    icon: "/favicon.png",
+    icon: "/favicon.ico",
+  },
+  alternates: {
+    canonical: "/",
   },
   openGraph: {
     title: "CrisCrafts | Premium Luxury Artisan Gift Boutique",
     description:
       "Heart-led, hand-finished, and uniquely yours. Discover premium, eternal handmade gifts.",
     url: "https://criscrafts.com",
-    siteName: "CrisCrafts",
+    siteName: "CrisCrafts Boutique",
     locale: "en_US",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CrisCrafts | Premium Luxury Artisan Gift Boutique",
+    description:
+      "Heart-led, hand-finished, and uniquely yours. Discover premium, eternal handmade gifts.",
   },
 };
 

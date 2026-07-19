@@ -16,12 +16,33 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-// Helper to serialize customizations in a deterministic, browser-safe way
-const serializeCustomizations = (cust: CartCustomizations): string => {
-  return Object.entries(cust)
-    .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
-    .map(([key, val]) => `${key}:${val}`)
-    .join("|");
+// Helper to serialize customizations in a deterministic, deep recursive way
+const serializeCustomizations = (cust?: CartCustomizations | null): string => {
+  if (!cust) return "std";
+  const parts: string[] = [];
+
+  if (cust.selectedOptions && typeof cust.selectedOptions === "object") {
+    const optsStr = Object.entries(cust.selectedOptions)
+      .filter(([_, v]) => Boolean(v))
+      .sort(([kA], [kB]) => kA.localeCompare(kB))
+      .map(([k, v]) => `${k}:${String(v).trim()}`)
+      .join(",");
+    if (optsStr) parts.push(`opts(${optsStr})`);
+  }
+
+  if (cust.selectedAddons && Array.isArray(cust.selectedAddons)) {
+    const addonsStr = [...cust.selectedAddons].filter(Boolean).sort().join(",");
+    if (addonsStr) parts.push(`addons(${addonsStr})`);
+  }
+
+  if (cust.flowerColor) parts.push(`fc:${cust.flowerColor.trim()}`);
+  if (cust.ribbonColor) parts.push(`rc:${cust.ribbonColor.trim()}`);
+  if (cust.addGlitter) parts.push(`glitter:1`);
+  if (cust.addSnowPaper) parts.push(`snow:1`);
+  if (cust.customizedText) parts.push(`txt:${cust.customizedText.trim()}`);
+  if (cust.giftNote) parts.push(`note:${cust.giftNote.trim()}`);
+
+  return parts.length > 0 ? parts.sort().join("|") : "std";
 };
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -34,11 +55,31 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const storedCart = localStorage.getItem("criscrafts_cart");
     if (storedCart) {
       try {
-        setItems(JSON.parse(storedCart));
+        const parsed = JSON.parse(storedCart);
+        if (Array.isArray(parsed)) {
+          setItems(parsed);
+        }
       } catch (err) {
         console.error("Failed to parse cart items from localStorage", err);
       }
     }
+
+    // Cross-tab cart synchronization listener
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "criscrafts_cart" && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) {
+            setItems(parsed);
+          }
+        } catch (err) {
+          console.error("Failed to sync cross-tab cart update", err);
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   // Save cart to localStorage whenever items change, but only after mount
@@ -49,6 +90,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [items, isMounted]);
 
   const addToCart = (product: Product, quantity: number, customizations: CartCustomizations) => {
+    if (!product || !product.slug) return;
+    const safeQuantity = Math.min(99, Math.max(1, Math.floor(Number(quantity) || 1)));
+
     const customizationsKey = serializeCustomizations(customizations);
     const itemId = `${product.slug}-${customizationsKey}`;
     const unitPrice = calculateItemUnitPrice(
@@ -62,18 +106,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const existingItemIndex = prevItems.findIndex((item) => item.id === itemId);
 
       if (existingItemIndex > -1) {
-        // Update quantity of existing item with matching customization
         const newItems = [...prevItems];
-        newItems[existingItemIndex].quantity += quantity;
+        const newQuantity = Math.min(99, newItems[existingItemIndex].quantity + safeQuantity);
+        newItems[existingItemIndex] = {
+          ...newItems[existingItemIndex],
+          quantity: newQuantity,
+          unitPrice, // refresh unit price calculation
+        };
         return newItems;
       } else {
-        // Add new unique item configuration
         return [
           ...prevItems,
           {
             id: itemId,
             product,
-            quantity,
+            quantity: safeQuantity,
             customizations,
             unitPrice,
           },
@@ -87,12 +134,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateQuantity = (itemId: string, quantity: number) => {
-    if (quantity <= 0) {
+    const safeQty = Math.floor(Number(quantity) || 0);
+    if (safeQty <= 0) {
       removeFromCart(itemId);
       return;
     }
+    const boundedQty = Math.min(99, safeQty);
     setItems((prevItems) =>
-      prevItems.map((item) => (item.id === itemId ? { ...item, quantity } : item))
+      prevItems.map((item) => (item.id === itemId ? { ...item, quantity: boundedQty } : item))
     );
   };
 
