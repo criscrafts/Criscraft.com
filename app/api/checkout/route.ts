@@ -40,12 +40,19 @@ export async function POST(request: Request) {
     const validatedItems = [];
 
     for (const item of items) {
-      const product = await getProductBySlug(item.productSlug);
+      let product = await getProductBySlug(item.productSlug);
       if (!product) {
-        return NextResponse.json(
-          { success: false, error: `Product not found: ${item.productSlug}` },
-          { status: 404 }
-        );
+        product = {
+          _id: item.productId || "custom-product",
+          title: item.title || "Handcrafted Bouquet",
+          slug: item.productSlug || "custom-product",
+          price: typeof item.unitPrice === "number" && item.unitPrice > 0 ? item.unitPrice : 0,
+          discountPrice: undefined,
+          description: "Handcrafted boutique item",
+          images: [],
+          category: { title: "Custom", slug: "custom" },
+          availability: true,
+        };
       }
 
       // Compute item price including options
@@ -61,13 +68,26 @@ export async function POST(request: Request) {
 
       // Compile customization text for easier sheet reading
       const customizationsList: string[] = [];
-      const c = item.customizations as CartCustomizations;
-      if (c.flowerColor) customizationsList.push(`Color: ${c.flowerColor}`);
-      if (c.ribbonColor) customizationsList.push(`Ribbon: ${c.ribbonColor}`);
-      if (c.addGlitter) customizationsList.push(`Glitter (+50)`);
-      if (c.addSnowPaper) customizationsList.push(`SnowPaper (+100)`);
+      const c = (item.customizations || {}) as CartCustomizations;
+      
+      if (c.selectedOptions && Object.keys(c.selectedOptions).length > 0) {
+        Object.entries(c.selectedOptions).forEach(([groupName, valName]) => {
+          if (valName) customizationsList.push(`${groupName}: ${valName}`);
+        });
+      } else {
+        if (c.flowerColor) customizationsList.push(`Color: ${c.flowerColor}`);
+        if (c.ribbonColor) customizationsList.push(`Ribbon: ${c.ribbonColor}`);
+      }
+
+      if (c.selectedAddons && Array.isArray(c.selectedAddons)) {
+        c.selectedAddons.forEach((addonName) => customizationsList.push(`Addon: ${addonName}`));
+      } else {
+        if (c.addGlitter) customizationsList.push(`Glitter (+50)`);
+        if (c.addSnowPaper) customizationsList.push(`SnowPaper (+100)`);
+      }
+
       if (c.customizedText) customizationsList.push(`Label: "${c.customizedText}"`);
-      if (c.giftNote) customizationsList.push(`Note: "${c.giftNote}"`);
+      if (c.giftNote) customizationsList.push(`Gift Note: "${c.giftNote}"`);
 
       validatedItems.push({
         title: product.title,
@@ -81,6 +101,7 @@ export async function POST(request: Request) {
     const shippingCost = calculateShippingCost(shippingMethod);
     const total = subtotal + shippingCost;
     const orderId = generateOrderId();
+    const totalQuantity = validatedItems.reduce((sum, i) => sum + i.quantity, 0);
 
     // 3. Compile Product Summary Text for Google Sheets
     const productSummary = validatedItems
@@ -98,26 +119,35 @@ export async function POST(request: Request) {
 
     if (googleScriptUrl && googleScriptUrl !== "placeholder-url") {
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
+
         const response = await fetch(googleScriptUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          signal: controller.signal,
           body: JSON.stringify({
             orderId,
-            customerName,
-            phone,
-            address,
+            customerName: String(customerName).trim(),
+            phone: String(phone).trim(),
+            address: String(address).trim(),
             shippingMethod,
+            shippingRegion: shippingMethod === "outside-valley" ? "Outside Valley (Rs. 250)" : "Inside Valley (Rs. 150)",
+            totalQuantity,
             productSummary,
             subtotal,
             shippingCost,
             total,
             paymentMethod,
-            notes,
+            notes: notes ? String(notes).trim() : "",
+            createdAt: new Date().toISOString(),
+            items: validatedItems,
           }),
         });
 
+        clearTimeout(timeoutId);
         const resData = await response.json();
         if (resData.success) {
           sheetSubmissionStatus = "Success";
@@ -125,8 +155,13 @@ export async function POST(request: Request) {
           sheetSubmissionStatus = `Failed: ${resData.error || "Unknown Apps Script error"}`;
         }
       } catch (err: any) {
-        console.error("Failed contacting Google Apps Script API endpoint:", err);
-        sheetSubmissionStatus = `Error: ${err.message || err.toString()}`;
+        if (err.name === "AbortError") {
+          console.warn("Google Apps Script webhook call timed out after 12s. Continuing checkout.");
+          sheetSubmissionStatus = "Timed out (Order logged locally)";
+        } else {
+          console.error("Failed contacting Google Apps Script API endpoint:", err);
+          sheetSubmissionStatus = `Error: ${err.message || err.toString()}`;
+        }
       }
     } else {
       console.warn("GOOGLE_SCRIPT_URL environment variable is missing. Submission to Google Sheets was bypassed.");

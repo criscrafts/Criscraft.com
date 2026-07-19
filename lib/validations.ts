@@ -20,23 +20,24 @@ export function calculateShippingCost(method: string): number {
 export function validateCheckoutForm(data: any): { isValid: boolean; errors: Record<string, string> } {
   const errors: Record<string, string> = {};
 
-  if (!data.customerName || data.customerName.trim().length < 3) {
+  const cleanName = data?.customerName ? String(data.customerName).trim() : "";
+  if (!cleanName || cleanName.length < 3) {
     errors.customerName = "Name must be at least 3 characters long.";
   }
 
-  // Simple check for valid 10-digit or standard international phone formats
+  const rawPhone = data?.phone ? String(data.phone).trim() : "";
+  const sanitizedPhoneDigits = rawPhone.replace(/[\s\-\(\)]/g, "");
   const phoneRegex = /^[+]?[0-9]{9,15}$/;
-  if (!data.phone || !phoneRegex.test(data.phone.replace(/[\s-]/g, ""))) {
+  if (!rawPhone || !phoneRegex.test(sanitizedPhoneDigits)) {
     errors.phone = "Please enter a valid phone number (at least 9 digits).";
   }
 
-  if (!data.address || data.address.trim().length < 8) {
+  const cleanAddress = data?.address ? String(data.address).trim() : "";
+  if (!cleanAddress || cleanAddress.length < 8) {
     errors.address = "Please enter a detailed shipping address (at least 8 characters).";
   }
 
-
-
-  if (!data.shippingMethod || (data.shippingMethod !== "inside-valley" && data.shippingMethod !== "outside-valley")) {
+  if (!data?.shippingMethod || (data.shippingMethod !== "inside-valley" && data.shippingMethod !== "outside-valley")) {
     errors.shippingMethod = "Please select a valid shipping area.";
   }
 
