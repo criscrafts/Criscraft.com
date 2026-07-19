@@ -34,9 +34,7 @@ export function validateCheckoutForm(data: any): { isValid: boolean; errors: Rec
     errors.address = "Please enter a detailed shipping address (at least 8 characters).";
   }
 
-  if (data.paymentMethod !== "cod" && data.paymentMethod !== "qr") {
-    errors.paymentMethod = "Please choose a valid payment option.";
-  }
+
 
   if (!data.shippingMethod || (data.shippingMethod !== "inside-valley" && data.shippingMethod !== "outside-valley")) {
     errors.shippingMethod = "Please select a valid shipping area.";

@@ -77,42 +77,58 @@ export function compileWhatsAppMessage(params: {
   subtotal: number;
   shippingCost: number;
   total: number;
-  paymentMethod: "cod" | "qr";
+  paymentMethod?: string;
   notes?: string;
 }): string {
-  const paymentText = params.paymentMethod === "qr" ? "QR Payment (Awaiting Verification)" : "Cash on Delivery (COD)";
-  
+  const shippingRegion = params.shippingCost === 250 ? "Outside Valley (Rs. 250)" : "Inside Valley (Rs. 150)";
+
   let itemsList = "";
   params.items.forEach((item, idx) => {
-    let customDetails = [];
-    if (item.customizations.flowerColor) customDetails.push(`Color: ${item.customizations.flowerColor}`);
-    if (item.customizations.ribbonColor) customDetails.push(`Ribbon: ${item.customizations.ribbonColor}`);
-    if (item.customizations.addGlitter) customDetails.push(`Add-on: Glitter (+Rs. 50)`);
-    if (item.customizations.addSnowPaper) customDetails.push(`Wrap: Snow Paper (+Rs. 100)`);
-    if (item.customizations.customizedText) customDetails.push(`Label: "${item.customizations.customizedText}"`);
-    if (item.customizations.giftNote) customDetails.push(`Gift Note: "${item.customizations.giftNote}"`);
-    
-    const detailsStr = customDetails.length > 0 ? ` [${customDetails.join(", ")}]` : "";
-    itemsList += `${idx + 1}. ${item.quantity}x ${item.product.title}${detailsStr} - ${formatPrice(item.unitPrice * item.quantity)}\n`;
+    const itemTotal = item.unitPrice * item.quantity;
+    itemsList += `${idx + 1}️⃣ *${item.quantity}x ${item.product.title}*\n`;
+
+    // Standard & custom options
+    if (item.customizations?.flowerColor) {
+      itemsList += `   • Color: ${item.customizations.flowerColor}\n`;
+    }
+    if (item.customizations?.ribbonColor) {
+      itemsList += `   • Ribbon: ${item.customizations.ribbonColor}\n`;
+    }
+    if (item.customizations?.addGlitter) {
+      itemsList += `   • Add-on: Sparkly Glitter Dust (+Rs. 50)\n`;
+    }
+    if (item.customizations?.addSnowPaper) {
+      itemsList += `   • Add-on: Textured Snow Paper (+Rs. 100)\n`;
+    }
+    if (item.customizations?.customizedText) {
+      itemsList += `   • Custom Label: "${item.customizations.customizedText}"\n`;
+    }
+    if (item.customizations?.giftNote) {
+      itemsList += `   • Gift Note: "${item.customizations.giftNote}"\n`;
+    }
+
+    itemsList += `   • Price: ${formatPrice(item.unitPrice)} each (${formatPrice(itemTotal)})\n\n`;
   });
 
-  const rawMessage = `✨ *CrisCrafts Artisan Order Confirmation* ✨
-----------------------------------
+  const rawMessage = `🎁 *CRISCRAFTS ORDER CONFIRMATION* 🎁
+━━━━━━━━━━━━━━━━━━━━━━
 *Order ID:* ${params.orderId}
-*Customer Name:* ${params.customerName}
-*Phone Number:* ${params.phone}
-*Shipping Address:* ${params.address}
-*Payment Method:* ${paymentText}
-${params.notes ? `*Customer Note:* "${params.notes}"\n` : ""}
-*Items Ordered:*
-${itemsList}
-*Summary Pricing:*
-- Subtotal: ${formatPrice(params.subtotal)}
-- Shipping Cost: ${formatPrice(params.shippingCost)}
-----------------------------------
-*Total Amount Payable:* ${formatPrice(params.total)}
+*Customer:* ${params.customerName}
+*Phone:* ${params.phone}
+*Delivery Address:* ${params.address}
+*Shipping:* ${shippingRegion}
 
-Thank you for choosing handmade quality made with love! ❤️`;
+🛍️ *ORDER ITEMS:*
+${itemsList.trim()}
+
+━━━━━━━━━━━━━━━━━━━━━━
+💰 *PAYMENT SUMMARY:*
+• Items Subtotal: ${formatPrice(params.subtotal)}
+• Shipping Fee: ${formatPrice(params.shippingCost)}
+*Grand Total:* *${formatPrice(params.total)}*
+━━━━━━━━━━━━━━━━━━━━━━
+${params.notes ? `📝 *Special Instructions:* "${params.notes}"\n━━━━━━━━━━━━━━━━━━━━━━\n` : ""}
+💬 *I would like to complete payment and confirm this order with CrisCrafts.* ❤️`;
 
   return encodeURIComponent(rawMessage);
 }

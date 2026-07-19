@@ -127,25 +127,25 @@ export default function SuccessPage() {
 
         {/* Action Button: Send WhatsApp Details */}
         <div className="glassmorphism p-6 sm:p-8 rounded-3xl border border-soft-gold/25 shadow-luxury-lg mb-8 flex flex-col gap-5 items-center justify-center text-center relative overflow-hidden">
-          <div className="absolute top-[-50px] right-[-50px] w-28 h-28 bg-soft-gold/5 rounded-full pointer-events-none" />
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-soft-gold uppercase tracking-wider pl-1">
-            <Heart className="w-4 h-4 fill-soft-gold text-soft-gold" /> Critical Next Step
+          <div className="absolute top-[-50px] right-[-50px] w-28 h-28 bg-[#25D366]/10 rounded-full pointer-events-none" />
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-[#25D366] uppercase tracking-wider pl-1">
+            <MessageCircle className="w-4 h-4 text-[#25D366] fill-[#25D366]" /> Final Order Step
           </div>
           <h3 className="font-serif text-xl text-deep-slate max-w-sm">
-            Send WhatsApp message to complete verification
+            Complete Payment & Confirm via WhatsApp
           </h3>
           <p className="text-xs text-charcoal/80 max-w-md leading-relaxed">
-            Clicking the button below will open a prefilled chat message on WhatsApp containing your order ID, items list, and address. This connects you directly to our studio team to finalize custom specifications.
+            If your WhatsApp tab did not open automatically, click the button below to send your prefilled order specifications, standard/custom options, and complete payment with our team.
           </p>
           
           <Button
             variant="gold"
             onClick={handleWhatsAppRedirect}
-            className="w-full sm:w-auto px-8 py-3.5 text-sm uppercase tracking-wider font-bold shadow-luxury hover:shadow-luxury-lg mt-2"
+            className="w-full sm:w-auto px-8 py-3.5 text-sm uppercase tracking-wider font-bold shadow-luxury hover:shadow-luxury-lg mt-2 bg-[#25D366] hover:bg-[#20ba5a] text-white border-none"
             leftIcon={<MessageCircle className="w-5 h-5 fill-current" />}
             rightIcon={<ArrowRight className="w-4 h-4" />}
           >
-            Confirm via WhatsApp
+            Confirm & Pay via WhatsApp
           </Button>
         </div>
 

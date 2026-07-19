@@ -16,7 +16,8 @@ function generateOrderId(): string {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { customerName, phone, address, items, paymentMethod, notes, shippingMethod } = body;
+    const { customerName, phone, address, items, notes, shippingMethod } = body;
+    const paymentMethod = body?.paymentMethod || "WhatsApp Payment & Confirmation";
 
     // 1. Validate Form Fields
     const { isValid, errors } = validateCheckoutForm({

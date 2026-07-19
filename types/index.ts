@@ -95,7 +95,7 @@ export interface OrderPayload {
     customizations: CartCustomizations;
     unitPrice: number;
   }[];
-  paymentMethod: "cod" | "qr";
+  paymentMethod?: string;
   notes?: string;
   shippingMethod: string;
 }

@@ -4,13 +4,12 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { CreditCard, Truck, Clipboard, ShieldCheck, ShoppingBag, ArrowLeft, Loader2, QrCode } from "lucide-react";
+import { Truck, Clipboard, ShieldCheck, ShoppingBag, ArrowLeft, Loader2, MessageCircle, Heart, Sparkles } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { calculateShippingCost, validateCheckoutForm } from "@/lib/validations";
-import { formatPrice } from "@/lib/cart";
+import { formatPrice, compileWhatsAppMessage } from "@/lib/cart";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -27,7 +26,6 @@ export default function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [shippingMethod, setShippingMethod] = useState("inside-valley"); // inside-valley or outside-valley
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "qr">("cod");
   const [notes, setNotes] = useState("");
   
   // UI Helpers
@@ -48,13 +46,11 @@ export default function CheckoutPage() {
       customerName,
       phone,
       address,
-      paymentMethod,
       shippingMethod,
     });
 
     if (!isValid) {
       setErrors(validationErrors);
-      // Scroll to first error
       const firstErrorKey = Object.keys(validationErrors)[0];
       const errorElement = document.getElementById(firstErrorKey);
       if (errorElement) errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -85,7 +81,7 @@ export default function CheckoutPage() {
           phone,
           address,
           shippingMethod,
-          paymentMethod,
+          paymentMethod: "WhatsApp Payment",
           notes,
           items: orderItems,
         }),
@@ -102,7 +98,7 @@ export default function CheckoutPage() {
             customerName,
             phone,
             address,
-            paymentMethod,
+            paymentMethod: "WhatsApp Payment",
             subtotal: data.subtotal,
             shippingCost: data.shippingCost,
             total: data.total,
@@ -111,9 +107,27 @@ export default function CheckoutPage() {
           })
         );
 
+        // Compile pre-filled WhatsApp message
+        const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "+9779800000000";
+        const encodedMessage = compileWhatsAppMessage({
+          orderId: data.orderId,
+          customerName,
+          phone,
+          address,
+          items,
+          subtotal: data.subtotal,
+          shippingCost: data.shippingCost,
+          total: data.total,
+          paymentMethod: "WhatsApp Payment",
+          notes,
+        });
+
         // Clear cart context
         clearCart();
         
+        // Open WhatsApp window with pre-filled message
+        window.open(`https://wa.me/${whatsappNumber.replace(/[+]/g, "")}?text=${encodedMessage}`, "_blank");
+
         // Go to success screen
         router.push("/success");
       } else {
@@ -262,69 +276,39 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Payment Method selection */}
-            <div className="flex flex-col gap-6 p-6 sm:p-8 rounded-3xl border border-soft-gold/15 bg-soft-cream/20">
+            {/* WhatsApp Payment & Order Confirmation Panel */}
+            <div className="flex flex-col gap-5 p-6 sm:p-8 rounded-3xl border border-soft-gold/20 bg-soft-cream/30 relative overflow-hidden">
               <div className="flex items-center gap-3 border-b border-soft-gold/10 pb-4">
-                <CreditCard className="w-5 h-5 text-soft-gold" />
-                <h3 className="font-serif text-xl text-deep-slate">Payment Details</h3>
+                <MessageCircle className="w-5 h-5 text-[#25D366]" />
+                <h3 className="font-serif text-xl text-deep-slate">Payment & Order Confirmation</h3>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <label
-                  onClick={() => setPaymentMethod("cod")}
-                  className={`flex flex-col gap-2 p-5 rounded-2xl border text-left cursor-pointer transition-all duration-300 ${
-                    paymentMethod === "cod"
-                      ? "border-soft-gold bg-soft-cream/80 ring-1 ring-soft-gold/30 shadow-luxury-sm"
-                      : "border-soft-gold/10 bg-transparent hover:border-soft-gold/40"
-                  }`}
-                >
-                  <span className="text-sm font-semibold text-deep-slate uppercase tracking-wider">
-                    Cash on Delivery (COD)
-                  </span>
-                  <span className="text-xs text-dark-gray/80 leading-normal">
-                    Pay with cash at the time of delivery.
-                  </span>
-                </label>
-
-                <label
-                  onClick={() => setPaymentMethod("qr")}
-                  className={`flex flex-col gap-2 p-5 rounded-2xl border text-left cursor-pointer transition-all duration-300 ${
-                    paymentMethod === "qr"
-                      ? "border-soft-gold bg-soft-cream/80 ring-1 ring-soft-gold/30 shadow-luxury-sm"
-                      : "border-soft-gold/10 bg-transparent hover:border-soft-gold/40"
-                  }`}
-                >
-                  <span className="text-sm font-semibold text-deep-slate uppercase tracking-wider flex items-center gap-1.5">
-                    Scan to Pay (QR)
-                  </span>
-                  <span className="text-xs text-dark-gray/80 leading-normal">
-                    Scan Fonepay QR code to complete immediate transfer.
-                  </span>
-                </label>
-              </div>
-
-              {/* Show QR payment mockup box */}
-              {paymentMethod === "qr" && (
-                <div className="mt-4 p-6 rounded-2xl border border-dashed border-soft-gold/30 bg-warm-ivory flex flex-col sm:flex-row items-center gap-6 shadow-luxury-sm">
-                  <div className="relative w-40 h-40 bg-white border border-soft-gold/25 rounded-xl p-2 flex items-center justify-center shadow-sm">
-                    {/* Placeholder QR Image using standard visual styling */}
-                    <div className="text-center flex flex-col items-center justify-center text-charcoal/30">
-                      <QrCode className="w-16 h-16 text-soft-gold" />
-                      <span className="text-[10px] mt-1 font-semibold uppercase tracking-wider text-charcoal/70">Fonepay Network</span>
-                    </div>
+              <div className="flex flex-col gap-3 font-sans text-sm text-charcoal/85 leading-relaxed">
+                <p>
+                  At CrisCrafts, all handcrafted orders (both standard catalog items and custom options) are completed & paid directly via <strong>WhatsApp</strong>.
+                </p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
+                  <div className="p-4 rounded-2xl bg-warm-ivory border border-soft-gold/15 flex flex-col gap-1 text-xs">
+                    <span className="font-bold text-soft-gold uppercase tracking-wider flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-soft-gold" /> 1. Click Button
+                    </span>
+                    <span className="text-dark-gray/70">Submit details & generate order ID</span>
                   </div>
-                  <div className="flex-1 flex flex-col gap-3 font-sans text-left">
-                    <h4 className="font-semibold text-deep-slate text-sm">Transfer Steps:</h4>
-                    <ol className="list-decimal pl-4 text-xs text-charcoal/80 flex flex-col gap-1.5 leading-relaxed">
-                      <li>Open eSewa, Fonepay, or your Mobile Banking application.</li>
-                      <li>Scan the merchant QR code on the left.</li>
-                      <li>Input the total order amount: <strong>{formatPrice(totalAmount)}</strong></li>
-                      <li>Proceed with payment. Note down your Txn Ref ID.</li>
-                      <li>Complete checkout and share the receipt screenshot on WhatsApp.</li>
-                    </ol>
+                  <div className="p-4 rounded-2xl bg-warm-ivory border border-soft-gold/15 flex flex-col gap-1 text-xs">
+                    <span className="font-bold text-[#25D366] uppercase tracking-wider flex items-center gap-1">
+                      <MessageCircle className="w-3 h-3 text-[#25D366]" /> 2. WhatsApp
+                    </span>
+                    <span className="text-dark-gray/70">Opens pre-filled message with order specs</span>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-warm-ivory border border-soft-gold/15 flex flex-col gap-1 text-xs">
+                    <span className="font-bold text-soft-gold uppercase tracking-wider flex items-center gap-1">
+                      <Heart className="w-3 h-3 text-muted-rose" /> 3. Complete Payment
+                    </span>
+                    <span className="text-dark-gray/70">Confirm delivery & payment with studio team</span>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Custom Notes */}
@@ -416,15 +400,15 @@ export default function CheckoutPage() {
               <Button
                 variant="gold"
                 onClick={handleSubmit}
-                className="w-full py-3.5 text-base font-semibold shadow-luxury hover:shadow-luxury-lg"
+                className="w-full py-3.5 text-base font-semibold shadow-luxury hover:shadow-luxury-lg bg-[#25D366] hover:bg-[#20ba5a] text-white border-none"
                 disabled={isSubmitting}
-                leftIcon={isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShieldCheck className="w-5 h-5" />}
+                leftIcon={isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <MessageCircle className="w-5 h-5 fill-current" />}
               >
-                {isSubmitting ? "Processing Order..." : "Complete Purchase"}
+                {isSubmitting ? "Generating WhatsApp Order..." : "Complete Order & Pay via WhatsApp"}
               </Button>
 
               <p className="text-[11px] text-dark-gray/60 leading-normal text-center mt-4 font-sans">
-                By completing your purchase, you agree to send a WhatsApp message to verify transaction details.
+                Clicking complete will open WhatsApp with your full order specifications to verify transaction details.
               </p>
             </div>
           </div>
