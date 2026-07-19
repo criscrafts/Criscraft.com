@@ -99,7 +99,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           <div className="flex items-center justify-between pt-1 border-t border-soft-gold/10">
             <div className="flex items-baseline gap-2">
-              {product.discountPrice ? (
+              {product.discountPrice &&
+              typeof product.discountPrice === "number" &&
+              product.discountPrice > 0 &&
+              product.discountPrice < (product.price || 0) ? (
                 <>
                   <span className="font-medium text-deep-slate text-sm sm:text-base">
                     {formatPrice(product.discountPrice)}

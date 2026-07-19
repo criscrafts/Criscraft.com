@@ -30,10 +30,10 @@ export const ProductClient: React.FC<ProductClientProps> = ({
 
   // Customization States
   const [flowerColor, setFlowerColor] = useState<string>(
-    product.variants?.find((v) => v.name.toLowerCase().includes("color") || v.name.toLowerCase().includes("petal"))?.options[0]?.name || ""
+    product.variants?.find((v) => v.name?.toLowerCase().includes("color") || v.name?.toLowerCase().includes("petal"))?.options?.[0]?.name || ""
   );
   const [ribbonColor, setRibbonColor] = useState<string>(
-    product.variants?.find((v) => v.name.toLowerCase().includes("ribbon"))?.options[0]?.name || ""
+    product.variants?.find((v) => v.name?.toLowerCase().includes("ribbon"))?.options?.[0]?.name || ""
   );
   const [addGlitter, setAddGlitter] = useState(false);
   const [addSnowPaper, setAddSnowPaper] = useState(false);
@@ -70,6 +70,13 @@ export const ProductClient: React.FC<ProductClientProps> = ({
     setTimeout(() => setIsAdded(false), 2000);
   };
 
+  const hasDiscount = Boolean(
+    product.discountPrice &&
+      typeof product.discountPrice === "number" &&
+      product.discountPrice > 0 &&
+      product.discountPrice < (product.price || 0)
+  );
+
   return (
     <div className="w-full font-sans min-h-screen bg-warm-ivory bg-artisan-grid pt-28 pb-24">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
@@ -88,7 +95,7 @@ export const ProductClient: React.FC<ProductClientProps> = ({
             <div className="relative aspect-square w-full rounded-[32px] overflow-hidden shadow-luxury border border-soft-gold/15 bg-soft-cream">
               <Image
                 src={currentImage}
-                alt={product.title}
+                alt={product.title || "Product image"}
                 fill
                 priority
                 className="object-cover transition-all duration-500 ease-out"
@@ -111,7 +118,7 @@ export const ProductClient: React.FC<ProductClientProps> = ({
                   >
                     <Image
                       src={urlFor(img)}
-                      alt={`${product.title} view ${idx + 1}`}
+                      alt={`${product.title || "Product"} view ${idx + 1}`}
                       fill
                       className="object-cover"
                       sizes="80px"
@@ -143,7 +150,7 @@ export const ProductClient: React.FC<ProductClientProps> = ({
               </h1>
               
               <div className="flex items-baseline gap-3 mt-1.5">
-                {product.discountPrice ? (
+                {hasDiscount ? (
                   <>
                     <span className="font-serif text-2xl font-medium text-deep-slate">
                       {formatPrice(livePrice)}
@@ -171,8 +178,9 @@ export const ProductClient: React.FC<ProductClientProps> = ({
               
               {/* Dynamic variant dropdowns */}
               {product.variants?.map((v, vIdx) => {
-                const isColor = v.name.toLowerCase().includes("color") || v.name.toLowerCase().includes("petal");
-                const isRibbon = v.name.toLowerCase().includes("ribbon");
+                const vName = v.name?.toLowerCase() || "";
+                const isColor = vName.includes("color") || vName.includes("petal");
+                const isRibbon = vName.includes("ribbon");
 
                 return (
                   <div key={vIdx} className="flex flex-col gap-2.5 font-sans">
@@ -182,7 +190,7 @@ export const ProductClient: React.FC<ProductClientProps> = ({
 
                     {isColor && (
                       <div className="flex flex-wrap gap-2.5">
-                        {v.options.map((opt, oIdx) => (
+                        {v.options?.map((opt, oIdx) => (
                           <button
                             key={oIdx}
                             onClick={() => setFlowerColor(opt.name)}
@@ -200,7 +208,7 @@ export const ProductClient: React.FC<ProductClientProps> = ({
 
                     {isRibbon && (
                       <div className="flex flex-wrap gap-2.5">
-                        {v.options.map((opt, oIdx) => (
+                        {v.options?.map((opt, oIdx) => (
                           <button
                             key={oIdx}
                             onClick={() => setRibbonColor(opt.name)}
@@ -218,11 +226,11 @@ export const ProductClient: React.FC<ProductClientProps> = ({
 
                     {!isColor && !isRibbon && (
                       <select
-                        value={isRibbon ? ribbonColor : flowerColor}
-                        onChange={(e) => isRibbon ? setRibbonColor(e.target.value) : setFlowerColor(e.target.value)}
+                        value={flowerColor}
+                        onChange={(e) => setFlowerColor(e.target.value)}
                         className="w-full px-4 py-3 rounded-xl border border-soft-gold/25 focus:border-soft-gold focus:ring-1 focus:ring-soft-gold/30 bg-warm-ivory text-sm text-deep-slate outline-none"
                       >
-                        {v.options.map((opt, oIdx) => (
+                        {v.options?.map((opt, oIdx) => (
                           <option key={oIdx} value={opt.name}>
                             {opt.name} {opt.priceImpact ? `(+${formatPrice(opt.priceImpact)})` : ""}
                           </option>

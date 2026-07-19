@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getProductBySlug } from "@/lib/sanity";
-import { calculateItemUnitPrice } from "@/lib/cart";
+import { calculateItemUnitPrice, formatPrice } from "@/lib/cart";
 import { calculateShippingCost, validateCheckoutForm } from "@/lib/validations";
 import { CartCustomizations } from "@/types";
 
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
         (item, idx) =>
           `[${idx + 1}] ${item.quantity}x ${item.title} (${
             item.customizations || "Standard"
-          }) @ Rs. ${item.unitPrice.toLocaleString()}`
+          }) @ ${formatPrice(item.unitPrice)}`
       )
       .join("\n");
 

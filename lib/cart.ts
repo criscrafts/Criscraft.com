@@ -3,7 +3,10 @@ import { CartItem, CartCustomizations } from "@/types";
 /**
  * Formats a numeric price into a luxury Nepalese Rupee string.
  */
-export function formatPrice(amount: number): string {
+export function formatPrice(amount?: number | null): string {
+  if (amount === null || amount === undefined || typeof amount !== "number" || isNaN(amount)) {
+    return "Rs. 0";
+  }
   return `Rs. ${amount.toLocaleString("en-IN")}`;
 }
 
@@ -11,12 +14,20 @@ export function formatPrice(amount: number): string {
  * Calculates the unit price of a cart item based on customizations and selected variant values.
  */
 export function calculateItemUnitPrice(
-  basePrice: number,
-  discountPrice: number | undefined,
-  customizations: CartCustomizations,
-  product: any
+  basePrice?: number | null,
+  discountPrice?: number | null,
+  customizations?: CartCustomizations,
+  product?: any
 ): number {
-  let price = discountPrice !== undefined ? discountPrice : basePrice;
+  const safeBasePrice = typeof basePrice === "number" && !isNaN(basePrice) ? basePrice : 0;
+  const safeDiscountPrice =
+    typeof discountPrice === "number" && !isNaN(discountPrice) && discountPrice > 0
+      ? discountPrice
+      : undefined;
+
+  let price = safeDiscountPrice !== undefined ? safeDiscountPrice : safeBasePrice;
+
+  if (!customizations) return price;
 
   // Add-ons
   if (customizations.addGlitter) {
@@ -27,20 +38,24 @@ export function calculateItemUnitPrice(
   }
 
   // Variant Option pricing impact
-  if (product.variants && Array.isArray(product.variants)) {
+  if (product?.variants && Array.isArray(product.variants)) {
     product.variants.forEach((v: any) => {
-      const selectedValueName =
-        v.name.toLowerCase() === "flower color" || v.name.toLowerCase() === "petal color"
-          ? customizations.flowerColor
-          : v.name.toLowerCase() === "ribbon style" || v.name.toLowerCase() === "ribbon color"
-          ? customizations.ribbonColor
-          : null;
+      const vName = v?.name?.toLowerCase() || "";
+      let selectedValueName: string | undefined = undefined;
 
-      if (selectedValueName && v.options && Array.isArray(v.options)) {
+      if (vName.includes("color") || vName.includes("petal")) {
+        selectedValueName = customizations.flowerColor;
+      } else if (vName.includes("ribbon")) {
+        selectedValueName = customizations.ribbonColor;
+      } else {
+        selectedValueName = customizations.flowerColor || customizations.ribbonColor;
+      }
+
+      if (selectedValueName && v?.options && Array.isArray(v.options)) {
         const option = v.options.find(
-          (o: any) => o.name.toLowerCase() === selectedValueName.toLowerCase()
+          (o: any) => o?.name?.toLowerCase() === selectedValueName!.toLowerCase()
         );
-        if (option && option.priceImpact) {
+        if (option && typeof option.priceImpact === "number" && !isNaN(option.priceImpact)) {
           price += option.priceImpact;
         }
       }
