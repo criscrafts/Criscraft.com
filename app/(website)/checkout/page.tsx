@@ -157,7 +157,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="w-full font-sans min-h-screen bg-warm-ivory bg-artisan-grid pt-28 pb-24 text-left">
+    <div className="w-full font-sans min-h-screen bg-warm-ivory bg-artisan-grid pt-24 sm:pt-28 lg:pt-32 pb-24 text-left">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         {/* Back link */}
         <Link
@@ -343,7 +343,7 @@ export default function CheckoutPage() {
           </form>
 
           {/* Right Column: Order Summary Panel */}
-          <div className="lg:col-span-5 sticky top-28 flex flex-col gap-6 text-left">
+          <div className="lg:col-span-5 lg:sticky lg:top-28 flex flex-col gap-6 text-left">
             <div className="p-6 sm:p-8 rounded-3xl border border-soft-gold/15 bg-soft-cream/20 shadow-luxury-sm">
               <h3 className="font-serif text-xl text-deep-slate border-b border-soft-gold/10 pb-4 mb-6">
                 Order Summary

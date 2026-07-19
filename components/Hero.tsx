@@ -163,10 +163,10 @@ export const Hero: React.FC<{ products: Product[]; heroData: HeroData | null }> 
           <motion.div
             animate={{ y: [0, -12, 0] }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-4 -left-4 sm:top-12 sm:-left-8 glassmorphism px-4 py-3 rounded-2xl shadow-luxury flex items-center gap-3 z-20 border border-soft-gold/20"
+            className="absolute top-2 left-2 sm:top-12 sm:-left-8 glassmorphism px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-2xl shadow-luxury flex items-center gap-3 z-20 border border-soft-gold/20"
           >
-            <div className="w-8 h-8 rounded-full bg-pastel-peach flex items-center justify-center text-soft-gold shadow-sm">
-              <Heart className="w-4 h-4 fill-current" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-pastel-peach flex items-center justify-center text-soft-gold shadow-sm">
+              <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" />
             </div>
             <div>
               <p className="text-[9px] uppercase tracking-widest font-bold text-dark-gray/60">Made with</p>
@@ -177,10 +177,10 @@ export const Hero: React.FC<{ products: Product[]; heroData: HeroData | null }> 
           <motion.div
             animate={{ y: [0, 10, 0] }}
             transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-            className="absolute -bottom-6 -right-4 sm:bottom-12 sm:-right-6 glassmorphism px-5 py-3.5 rounded-2xl shadow-luxury flex items-center gap-3 z-20 border border-soft-gold/20"
+            className="absolute bottom-2 right-2 sm:bottom-12 sm:-right-6 glassmorphism px-4 py-2.5 sm:px-5 sm:py-3.5 rounded-2xl shadow-luxury flex items-center gap-3 z-20 border border-soft-gold/20"
           >
-            <div className="w-8 h-8 rounded-full bg-pastel-blue flex items-center justify-center text-sky-blue shadow-sm">
-              <Award className="w-4 h-4" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-pastel-blue flex items-center justify-center text-sky-blue shadow-sm">
+              <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
             <div>
               <p className="text-[9px] uppercase tracking-widest font-bold text-dark-gray/60">Finished By</p>

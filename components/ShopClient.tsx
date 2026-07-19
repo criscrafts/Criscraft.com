@@ -104,7 +104,7 @@ export const ShopClient: React.FC<ShopClientProps> = ({
   };
 
   return (
-    <div className="w-full font-sans min-h-screen bg-warm-ivory bg-artisan-grid pt-20 pb-16">
+    <div className="w-full font-sans min-h-screen bg-warm-ivory bg-artisan-grid pt-24 sm:pt-28 lg:pt-32 pb-16">
       {/* Background glow accent */}
       <div className="absolute top-[15%] left-[-5%] w-[25vw] h-[25vw] rounded-full bg-pastel-blue/10 blur-[80px] pointer-events-none" />
 
@@ -147,7 +147,7 @@ export const ShopClient: React.FC<ShopClientProps> = ({
         <div className="flex flex-col gap-4 mb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             {/* Dynamic Category Tabs */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none max-w-full">
+            <div className="flex items-center gap-2 overflow-x-auto touch-pan-x pb-1 scrollbar-none max-w-full">
               <button
                 onClick={() => setSelectedCategory("")}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all duration-300 focus:outline-none flex-shrink-0 flex items-center gap-1.5 ${

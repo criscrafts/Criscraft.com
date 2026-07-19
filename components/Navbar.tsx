@@ -149,37 +149,37 @@ export const Navbar: React.FC<{ settings: GlobalSettings | null }> = ({ settings
             </button>
           </div>
         </div>
-      </header>
 
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-x-0 top-[72px] z-30 md:hidden bg-warm-ivory border-b border-soft-gold/15 py-8 px-6 shadow-luxury-lg"
-          >
-            <div className="flex flex-col gap-6 align-center text-center">
-              {navLinks.map((link) => {
-                const isActive = pathname === link.href;
-                return (
-                  <Link
-                    key={link.name}
-                    href={link.href}
-                    className={`text-base tracking-widest uppercase font-semibold transition-colors duration-300 ${
-                      isActive ? "text-soft-gold" : "text-charcoal hover:text-soft-gold"
-                    }`}
-                  >
-                    {link.name}
-                  </Link>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        {/* Mobile Menu Overlay */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+              className="absolute top-full left-0 right-0 z-30 md:hidden bg-warm-ivory border-b border-soft-gold/15 py-8 px-6 shadow-luxury-lg"
+            >
+              <div className="flex flex-col gap-6 align-center text-center">
+                {navLinks.map((link) => {
+                  const isActive = pathname === link.href;
+                  return (
+                    <Link
+                      key={link.name}
+                      href={link.href}
+                      className={`text-base tracking-widest uppercase font-semibold transition-colors duration-300 ${
+                        isActive ? "text-soft-gold" : "text-charcoal hover:text-soft-gold"
+                      }`}
+                    >
+                      {link.name}
+                    </Link>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
 
       {/* Slide-over Cart Drawer */}
       <CartDrawer isOpen={isCartDrawerOpen} onClose={() => setIsCartDrawerOpen(false)} />

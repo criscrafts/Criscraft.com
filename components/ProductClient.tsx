@@ -78,20 +78,20 @@ export const ProductClient: React.FC<ProductClientProps> = ({
   );
 
   return (
-    <div className="w-full font-sans min-h-screen bg-warm-ivory bg-artisan-grid pt-28 pb-24">
+    <div className="w-full font-sans min-h-screen bg-warm-ivory bg-artisan-grid pt-24 sm:pt-28 lg:pt-32 pb-24">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         {/* Back Link */}
         <Link
           href="/shop"
-          className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-dark-gray/60 hover:text-soft-gold transition-colors duration-300 mb-10 pl-1"
+          className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-dark-gray/60 hover:text-soft-gold transition-colors duration-300 mb-8 sm:mb-10 pl-1"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Back to Boutique
         </Link>
 
         {/* Core Product Split Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
           {/* Left Column: Visual Gallery Panel */}
-          <div className="lg:col-span-7 flex flex-col gap-4 sticky top-28">
+          <div className="lg:col-span-7 flex flex-col gap-4 lg:sticky lg:top-28">
             <div className="relative aspect-square w-full rounded-[32px] overflow-hidden shadow-luxury border border-soft-gold/15 bg-soft-cream">
               <Image
                 src={currentImage}
@@ -99,13 +99,13 @@ export const ProductClient: React.FC<ProductClientProps> = ({
                 fill
                 priority
                 className="object-cover transition-all duration-500 ease-out"
-                sizes="(max-w-768px) 100vw, 50vw"
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
             
             {/* Gallery Thumbnails */}
             {product.images && product.images.length > 1 && (
-              <div className="flex gap-4 overflow-x-auto scrollbar-none pb-2 mt-1">
+              <div className="flex gap-3 sm:gap-4 overflow-x-auto touch-pan-x scrollbar-none pb-2 mt-1">
                 {product.images.map((img, idx) => (
                   <button
                     key={idx}
